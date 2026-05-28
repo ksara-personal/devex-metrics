@@ -1,0 +1,34 @@
+fragment PullRequestReviews on PullRequest {
+  reviews(first: $reviewsCount, after:$afterReview) {
+          totalCount
+          pageInfo{
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            author {
+              login
+            }
+            onBehalfOf(first: 1) {
+              nodes {
+                ... on Team {
+                  slug
+                  name
+                }
+              }
+            }
+            comments{
+              totalCount
+            }
+            body
+            bodyText
+            state
+            createdAt
+            submittedAt
+            updatedAt
+            commit{
+              abbreviatedOid
+            }
+          }
+    }
+}

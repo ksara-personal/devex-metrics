@@ -1,0 +1,476 @@
+{
+	"info": {
+		"_postman_id": "a2b44de8-653b-4cfd-b006-b35c34d3e595",
+		"name": "MCP OAuth 2.1 - Local Test",
+		"description": "Converted from local-postgresql/oauth-testing.sh — discovery, OAuth metadata, PKCE auth URL builder, token exchange, and authenticated ping.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20351113"
+	},
+	"item": [
+		{
+			"name": "01 - MCP Discovery",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Try to extract resource_metadata from response headers or body",
+							"var rm = pm.response.headers.get('resource_metadata') ||",
+							"         pm.response.headers.get('Resource-Metadata') ||",
+							"         pm.response.headers.get('WWW-Authenticate');",
+							"",
+							"if (!rm) {",
+							"    try {",
+							"        var b = pm.response.json();",
+							"        // common shapes: { resource_metadata: 'https://...' } or { resource_metadata: { } }",
+							"        if (b && typeof b === 'object') {",
+							"            if (b.resource_metadata) rm = b.resource_metadata;",
+							"            else if (b.resourceMetadata) rm = b.resourceMetadata;",
+							"            else if (b.resource && typeof b.resource === 'string') rm = b.resource;",
+							"        }",
+							"    } catch (e) { /* not JSON */ }",
+							"}",
+							"",
+							"// If we got the WWW-Authenticate header, try to extract resource_metadata=\"...\"",
+							"if (rm && typeof rm === 'string' && rm.includes('WWW-Authenticate')) {",
+							"    // pm.response.headers.get() only gives the value, not the key, but just in case",
+							"    var wwwAuth = rm;",
+							"    var match = wwwAuth.match(/resource_metadata=\"?([^\",\\s]+)\"?/i);",
+							"    if (match && match[1]) {",
+							"        rm = match[1];",
+							"    }",
+							"} else if (rm && typeof rm === 'string' && rm.includes('resource_metadata=')) {",
+							"    // If header contained 'resource_metadata=https://...' strip prefix and quotes if needed",
+							"    var match = rm.match(/resource_metadata=\"?([^\",\\s]+)\"?/i);",
+							"    if (match && match[1]) {",
+							"        rm = match[1];",
+							"    }",
+							"}",
+							"",
+							"if (rm) {",
+							"    pm.collectionVariables.set('resource_metadata_url', rm);",
+							"    console.log('resource_metadata_url ->', rm);",
+							"    pm.test('resource_metadata_url extracted', function () {",
+							"        pm.expect(rm).to.not.be.empty;",
+							"    });",
+							"} else {",
+							"    console.log('resource_metadata not found in response; please set resource_metadata_url manually');",
+							"    pm.test('resource_metadata not found', function () {",
+							"        pm.expect(rm).to.not.be.undefined;",
+							"    });",
+							"}",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"1\",\n  \"method\": \"ping\"\n}"
+				},
+				"url": {
+					"raw": "{{MCP_ENDPOINT}}",
+					"host": [
+						"{{MCP_ENDPOINT}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 - Get Resource Metadata",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"try {",
+							"  var body = pm.response.json();",
+							"  var authServers = body.authorization_servers || body.authorizationServers || body.authorizationServers || body.authorizationServer || body.authorizationServerUrl;",
+							"  var auth = null;",
+							"  if (Array.isArray(authServers) && authServers.length>0) auth = authServers[0];",
+							"  else if (typeof authServers === 'string') auth = authServers;",
+							"  if (auth) {",
+							"    pm.collectionVariables.set('auth_server_url', auth);",
+							"    console.log('auth_server_url ->', auth);",
+							"    pm.test('auth_server_url extracted', function(){ pm.expect(auth).to.not.be.empty; });",
+							"  } else {",
+							"    console.log('authorization_servers not found in resource metadata; inspect body');",
+							"    pm.test('authorization_servers missing', function(){ pm.expect(false).to.be.true; });",
+							"  }",
+							"} catch(e) {",
+							"  console.log('Failed to parse resource metadata JSON:', e);",
+							"  pm.test('parse error', function(){ pm.expect(false).to.be.true; });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{resource_metadata_url}}",
+					"host": [
+						"{{resource_metadata_url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Get OAuth Metadata",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"try {",
+							"  var md = pm.response.json();",
+							"  if (md.authorization_endpoint) pm.collectionVariables.set('authorization_endpoint', md.authorization_endpoint);",
+							"  if (md.token_endpoint) pm.collectionVariables.set('token_endpoint', md.token_endpoint);",
+							"  console.log('authorization_endpoint ->', pm.collectionVariables.get('authorization_endpoint'));",
+							"  console.log('token_endpoint ->', pm.collectionVariables.get('token_endpoint'));",
+							"  pm.test('oauth metadata extracted', function(){",
+							"    pm.expect(pm.collectionVariables.get('authorization_endpoint')).to.not.be.empty;",
+							"    pm.expect(pm.collectionVariables.get('token_endpoint')).to.not.be.empty;",
+							"  });",
+							"} catch(e) {",
+							"  console.log('Failed to parse OAuth metadata:', e);",
+							"  pm.test('oauth metadata parse error', function(){ pm.expect(false).to.be.true; });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{auth_server_url}}/.well-known/oauth-authorization-server",
+					"host": [
+						"{{auth_server_url}}"
+					],
+					"path": [
+						".well-known",
+						"oauth-authorization-server"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 - Build Authorization URL (PKCE)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generate PKCE code_verifier and code_challenge using CryptoJS (available in Postman sandbox)",
+							"function base64url(wordArray) {",
+							"  var base64 = CryptoJS.enc.Base64.stringify(wordArray);",
+							"  return base64.replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');",
+							"}",
+							"",
+							"var verifier = base64url(CryptoJS.lib.WordArray.random(32));",
+							"var challenge = base64url(CryptoJS.SHA256(verifier));",
+							"var state = CryptoJS.lib.WordArray.random(16).toString();",
+							"pm.collectionVariables.set('code_verifier', verifier);",
+							"pm.collectionVariables.set('code_challenge', challenge);",
+							"pm.collectionVariables.set('state', state);",
+							"",
+							"var authEndpoint = pm.collectionVariables.get('authorization_endpoint') || pm.collectionVariables.get('auth_server_url');",
+							"var clientId = pm.collectionVariables.get('CLIENT_ID');",
+							"var redirectUri = pm.collectionVariables.get('REDIRECT_URI');",
+							"var scope = pm.collectionVariables.get('SCOPE');",
+							"var authUrl = authEndpoint +",
+							"  '?response_type=code' +",
+							"  '&client_id=' + encodeURIComponent(clientId) +",
+							"  '&redirect_uri=' + encodeURIComponent(redirectUri) +",
+							"  '&scope=' + encodeURIComponent(scope) +",
+							"  '&state=' + encodeURIComponent(state) +",
+							"  '&code_challenge=' + encodeURIComponent(challenge) +",
+							"  '&code_challenge_method=S256';",
+							"pm.collectionVariables.set('auth_url', authUrl);",
+							"console.log('Open this URL in your browser to authenticate:\\n' + authUrl);"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('auth_url generated', function(){ pm.expect(pm.collectionVariables.get('auth_url')).to.not.be.empty; });"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{authorization_endpoint}}",
+					"host": [
+						"{{authorization_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 - Token Exchange",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"try {",
+							"  var t = pm.response.json();",
+							"  if (t.access_token) {",
+							"    pm.collectionVariables.set('access_token', t.access_token);",
+							"    console.log('access_token stored (truncated):', t.access_token.substring(0,24) + '...');",
+							"    pm.test('access_token present', function(){ pm.expect(t.access_token).to.not.be.empty; });",
+							"  } else {",
+							"    console.log('Token response:', t);",
+							"    pm.test('no access_token', function(){ pm.expect(typeof t.access_token).to.not.equal('undefined'); });",
+							"  }",
+							"} catch(e) {",
+							"  console.log('Failed to parse token response:', e);",
+							"  pm.test('token parse error', function(){ pm.expect(false).to.be.true; });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "{{auth_code}}",
+							"description": "the code returned from 04",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{REDIRECT_URI}}",
+							"type": "text"
+						},
+						{
+							"key": "code_verifier",
+							"value": "{{code_verifier}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{CLIENT_ID}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{token_endpoint}}",
+					"host": [
+						"{{token_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 - MCP Authenticated Ping",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"try {",
+							"  var r = pm.response.text();",
+							"  try {",
+							"    var j = pm.response.json();",
+							"    console.log('MCP response JSON:', j);",
+							"    pm.test('MCP ping returned', function(){ pm.expect(j).to.not.be.empty; });",
+							"  } catch(e) {",
+							"    console.log('MCP response (non-JSON):', r);",
+							"    pm.test('MCP ping returned (raw)', function(){ pm.expect(r).to.not.be.empty; });",
+							"  }",
+							"} catch(e) {",
+							"  console.log('Error reading MCP response', e);",
+							"  pm.test('MCP request error', function(){ pm.expect(false).to.be.true; });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json, text/event-stream"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/list\",\n  \"params\": {}\n}"
+				},
+				"url": {
+					"raw": "{{MCP_ENDPOINT}}/",
+					"host": [
+						"{{MCP_ENDPOINT}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "MCP_ENDPOINT",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "CLIENT_ID",
+			"value": "your-oauth-client-id"
+		},
+		{
+			"key": "CLIENT_SECRET",
+			"value": ""
+		},
+		{
+			"key": "REDIRECT_URI",
+			"value": "http://127.0.0.1:33418/"
+		},
+		{
+			"key": "SCOPE",
+			"value": "openid"
+		},
+		{
+			"key": "resource_metadata_url",
+			"value": ""
+		},
+		{
+			"key": "auth_server_url",
+			"value": ""
+		},
+		{
+			"key": "authorization_endpoint",
+			"value": ""
+		},
+		{
+			"key": "token_endpoint",
+			"value": ""
+		},
+		{
+			"key": "code_challenge",
+			"value": ""
+		},
+		{
+			"key": "state",
+			"value": ""
+		},
+		{
+			"key": "auth_url",
+			"value": ""
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "code_verifier",
+			"value": ""
+		}
+	]
+}

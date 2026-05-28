@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+   <None Include="../../../../configs/appsettings.json">
+     <Link>appsettings.json</Link>
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+  </ItemGroup>
+  <ItemGroup>
+   <None Include="../../../../configs/appsettings.learn.json">
+     <Link>appsettings.learn.json</Link>
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+  </ItemGroup>
+  <ItemGroup>
+   <None Include="../../../../configs/appsettings.illuminate.json">
+     <Link>appsettings.illuminate.json</Link>
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+  </ItemGroup>
+  <ItemGroup>
+   <None Include="../../../../configs/appsettings.kestrel.json">
+     <Link>appsettings.kestrel.json</Link>
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.Authentication.ApiKey" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="9.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.12" />
+    <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.3" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.4.0-preview.3" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.12" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.12">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Metrics.Models/Metrics.Models.csproj" />
+    <ProjectReference Include="../../../Metrics/Metrics.csproj" />
+    <ProjectReference Include="../../../Metrics.ADO/Metrics.ADO.csproj" />
+    <ProjectReference Include="../../../Metrics.GitHub/Metrics.GitHub.csproj" />
+  </ItemGroup>
+</Project>

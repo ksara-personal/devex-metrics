@@ -1,0 +1,33 @@
+query {{
+  search(query: "{0} is:pr created:{1}..{2} sort:created-asc", type: ISSUE, first: 100, after:{3}) {{
+    issueCount
+    pageInfo{{
+      hasNextPage
+      endCursor
+    }}
+    edges {{
+      node {{
+        ... on PullRequest {{
+          title
+          number
+          url
+          baseRefName
+          createdAt
+          mergedAt
+          mergedBy{{
+            login
+          }}
+          repository{{
+            name
+            owner{{
+              login
+            }}
+          }}
+          author{{
+            login
+          }}
+        }}
+      }}
+    }}
+  }}
+}}

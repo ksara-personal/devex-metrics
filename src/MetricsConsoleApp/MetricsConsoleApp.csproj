@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+   <None Include="../../configs/appsettings.json">
+     <Link>appsettings.json</Link>
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+  </ItemGroup>
+  <ItemGroup>
+   <None Include="../../configs/appsettings.learn.json">
+     <Link>appsettings.learn.json</Link>
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+  </ItemGroup>
+  <ItemGroup>
+   <None Include="../../configs/appsettings.illuminate.json">
+     <Link>appsettings.illuminate.json</Link>
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Metrics/Metrics.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.12">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.12" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+</Project>

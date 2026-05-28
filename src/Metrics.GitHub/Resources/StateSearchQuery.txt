@@ -1,0 +1,7 @@
+PR{0}: repository(owner: $owner, name: $repo) {{
+    pullRequest(number: {0}) {{
+      number
+      state
+      updatedAt
+    }}
+  }}

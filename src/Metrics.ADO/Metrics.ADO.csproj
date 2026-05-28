@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Metrics.Models/Metrics.Models.csproj" />
+    <ProjectReference Include="../Metrics/Metrics.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.12" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.12" />
+    <PackageReference Include="Microsoft.TeamFoundationServer.ExtendedClient" Version="19.225.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.225.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Services.ServiceEndpoints.WebApi" Version="19.225.1" />
+    <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.3" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.4.0-preview.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utils/" />
+  </ItemGroup>
+</Project>

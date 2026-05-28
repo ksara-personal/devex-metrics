@@ -1,0 +1,48 @@
+query($owner: String!, 
+  $repo: String!, 
+  $prNumber: Int!, 
+  $afterReview: String, 
+  $afterCommit: String, 
+  $afterComment: String, 
+  $afterTimelines: String, 
+  $reviewsCount: Int = 100, 
+  $commitsCount: Int = 100, 
+  $commentsCount: Int = 100, 
+  $timelinesCount: Int = 100) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number:$prNumber) {
+      number
+      bodyText
+      author {
+        login
+      }
+      mergedBy {
+        login
+      }
+      repository{
+        nameWithOwner
+        owner{
+          login
+        }
+      }
+      baseRefName
+      additions
+      deletions
+      totalCommentsCount
+      changedFiles
+      createdAt
+      updatedAt
+      mergedAt
+      state
+      title
+      url
+      headRefName
+      
+      ... PullRequestComments
+      ... PullRequestReviews
+      ... PullRequestTimelineItems
+      ... PullRequestCommits
+      
+    }
+  }
+}

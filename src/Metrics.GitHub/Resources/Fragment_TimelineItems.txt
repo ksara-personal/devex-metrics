@@ -1,0 +1,54 @@
+fragment PullRequestTimelineItems on PullRequest {
+  timelineItems(first:$timelinesCount,
+      itemTypes: [
+          REVIEW_REQUESTED_EVENT, 
+          CONVERT_TO_DRAFT_EVENT
+          READY_FOR_REVIEW_EVENT, 
+          REVIEW_REQUEST_REMOVED_EVENT
+      ],
+      after: $afterTimelines){
+      totalCount
+      pageInfo{
+        hasNextPage
+        endCursor
+      }
+      nodes{
+      __typename
+      ... on ReviewRequestedEvent {
+          createdAt
+          requestedReviewer{
+            __typename
+            ... on Team {
+                name
+                slug
+              }
+              ... on User {
+                login
+              }
+          }
+        }
+      ... on ConvertToDraftEvent {
+          createdAt
+          actor {
+            login
+          }
+        }
+      ... on ReadyForReviewEvent {
+          createdAt
+      }
+      ... on ReviewRequestRemovedEvent {
+            createdAt
+            requestedReviewer {
+              __typename
+              ... on Team {
+                name
+                slug
+              }
+              ... on User {
+                login
+              }
+          }
+        }
+      }
+    }
+}

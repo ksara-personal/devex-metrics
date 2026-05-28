@@ -1,0 +1,24 @@
+fragment PullRequestCommits on PullRequest {
+  commits(first:$commitsCount,after:$afterCommit){
+        totalCount
+        pageInfo{
+          hasNextPage
+          endCursor
+        }
+        nodes{
+          commit{
+            abbreviatedOid
+            messageHeadline
+            committedDate
+            additions
+            deletions
+            author {
+              name
+            }
+            parents(first:10){
+              totalCount
+            }
+          }
+        }
+      }
+}

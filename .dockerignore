@@ -1,0 +1,59 @@
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# Dependencies
+**/node_modules/
+**/packages/
+
+# Version control
+**/.git/
+**/.gitignore
+**/.gitattributes
+
+# IDE files
+**/.vs/
+**/.vscode/
+**/*.user
+**/*.suo
+**/*.userprefs
+**/.idea/
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Logs and temp files
+**/*.log
+**/logs/
+**/tmp/
+**/temp/
+
+# CDK outputs
+**/cdk.out/
+**/cdk.context.json
+
+# Docker files (don't copy into container)
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
+
+# Test results
+**/TestResults/
+**/coverage/
+
+# NuGet packages (will be restored during build)
+**/*.nupkg
+**/.nuget/
+
+# Large data files
+**/*.db
+# **/*.sqlite  # Commented out - was excluding Sqlite migration directories
+**/*.mdf
+**/*.ldf
+
+# Build scripts
+**/build/
+**/dist/

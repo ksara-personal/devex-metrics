@@ -1,0 +1,764 @@
+# DevMetrics Architecture
+
+## Overview
+
+DevMetrics is a multi-tenant, cross-platform .NET 9.0 solution designed to extract, analyze, and report software engineering metrics from multiple source control platforms (GitHub, Azure DevOps). The system provides flexible querying capabilities through OData endpoints, MCP (Model Context Protocol) integration, and supports multiple database backends.
+
+## Architecture Principles
+
+- **Multi-Tenant**: Isolated data and configuration per tenant (e.g., Learn, Illuminate)
+- **Provider Pattern**: Extensible architecture supporting multiple source control systems
+- **Database Agnostic**: Support for SQLite and PostgreSQL with provider-specific migrations
+- **API First**: RESTful OData endpoints for flexible data access
+- **Background Processing**: Scheduled metric collection and synchronization
+- **Cloud Native**: OAuth 2.0 authentication, containerization support, cloud database integration
+
+## High-Level Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        VSCode[VS Code Copilot]
+        PowerBI[Power BI / Excel]
+        API_Client[API Clients]
+    end
+
+    subgraph "API Layer"
+        MCP[MCP Server<br/>Metrics.MCP.StreamableHTTP]
+        Auth[Authentication<br/>OAuth / API Key]
+        OData[OData Endpoints<br/>/tenant/odata/*]
+        MCP_Tools[MCP Tools<br/>Metrics/Author/Reviewer/Sprint]
+    end
+
+    subgraph "Service Layer"
+        Scheduler[Background Scheduler<br/>MetricsSchedulerService]
+        Sync[Data Synchronizer<br/>DataSyncService]
+        Export[Export Service<br/>MetricsExportService]
+    end
+
+    subgraph "Provider Layer"
+        GitHub[GitHub Provider<br/>Metrics.GitHub]
+        ADO[ADO Provider<br/>Metrics.ADO]
+        IProvider[IMetricsExtensionProvider<br/>Extension Interface]
+    end
+
+    subgraph "Core Layer"
+        Core[Core Library<br/>Metrics]
+        Models[Domain Models<br/>Metrics.Models]
+        MultiTenant[Multi-Tenant<br/>Configuration]
+    end
+
+    subgraph "Data Layer"
+        EF[Entity Framework Core]
+        SQLite[(SQLite)]
+        Postgres[(PostgreSQL)]
+        Migrations[Database Migrations<br/>Provider-Specific]
+    end
+
+    subgraph "External Systems"
+        GH_API[GitHub API]
+        ADO_API[Azure DevOps API]
+    end
+
+    VSCode --> MCP
+    PowerBI --> OData
+    API_Client --> OData
+    
+    MCP --> Auth
+    Auth --> OData
+    Auth --> MCP_Tools
+    
+    OData --> Core
+    MCP_Tools --> Core
+    
+    MCP --> Scheduler
+    Scheduler --> Sync
+    Sync --> Export
+    
+    Sync --> IProvider
+    IProvider --> GitHub
+    IProvider --> ADO
+    
+    GitHub --> GH_API
+    ADO --> ADO_API
+    
+    Core --> Models
+    Core --> MultiTenant
+    GitHub --> Core
+    ADO --> Core
+    
+    Core --> EF
+    EF --> Migrations
+    Migrations --> SQLite
+    Migrations --> Postgres
+    
+    style MCP fill:#e1f5ff
+    style GitHub fill:#fff3e0
+    style ADO fill:#fff3e0
+    style OData fill:#e8f5e9
+    style EF fill:#f3e5f5
+```
+
+## Component Architecture
+
+### 1. Core Components
+
+#### Metrics (Core Library)
+- **Purpose**: Foundation library providing shared services and infrastructure
+- **Key Responsibilities**:
+  - Data synchronization orchestration
+  - API client abstraction
+  - Metrics calculation and analysis
+  - Multi-tenant configuration management
+  - User membership services
+  - Sprint calendar management
+
+**Key Classes**:
+- `DataSyncService`: Orchestrates data synchronization across providers
+- `DataSynchronizer`: Base synchronization logic
+- `MetricProvider`: Factory for creating metric providers
+- `PRAnalyzer`: Pull request analysis and metrics calculation
+- `ConfigService`: Configuration management
+- `SprintCalendar`: Sprint/release date calculations
+
+#### Metrics.Models
+- **Purpose**: Domain models and data transfer objects
+- **Key Entities**:
+  - `PRMetricsEx`: Extended PR metrics model
+  - `DevExMetric`: Developer experience metrics
+  - `Team`: Team information
+  - `AuthorMetric`: Author productivity metrics
+  - `ReviewerMetric`: Reviewer performance metrics
+  - `CopilotReviewMetric`: GitHub Copilot review statistics
+  - `Sprint`: Sprint/release information
+
+```mermaid
+classDiagram
+    class PRMetricsEx {
+        +string Id
+        +int PrNumber
+        +string Author
+        +string Repository
+        +DateTime CreatedAt
+        +DateTime? MergedAt
+        +string State
+        +int TotalLines
+        +double CycleTime
+        +double LeadTime
+        +Team Team
+        +List~ReviewerMetric~ ReviewerMetrics
+        +CopilotReviewMetric CopilotReviewMetrics
+    }
+
+    class Team {
+        +string Name
+        +string Region
+        +string ValueStream
+        +List~PRMetricsEx~ Metrics
+    }
+
+    class ReviewerMetric {
+        +string Reviewer
+        +int CommentCount
+        +DateTime ReviewedAt
+        +string State
+    }
+
+    class CopilotReviewMetric {
+        +int FilesReviewed
+        +int FilesChanged
+        +int Comments
+    }
+
+    class AuthorMetric {
+        +string Author
+        +int PrsAuthored
+        +int PrsClosed
+        +double AvgPrSize
+        +double AvgCycleTime
+        +double AvgReviewComments
+    }
+
+    PRMetricsEx "1" --> "1" Team
+    PRMetricsEx "1" --> "*" ReviewerMetric
+    PRMetricsEx "1" --> "0..1" CopilotReviewMetric
+```
+
+### 2. Provider Pattern
+
+The system uses an extensible provider pattern to support multiple source control systems.
+
+```mermaid
+graph TD
+    subgraph "Provider Pattern"
+        IProvider[IMetricsExtensionProvider<br/>Extension Interface]
+        IService[IServiceConfigurator]
+        IOData[IODataConfigurator]
+        IScheduler[IMetricsScheduler]
+        
+        IProvider --> IService
+        IProvider --> IOData
+        
+        GitHubProvider[GitHubExtensionProvider]
+        ADOProvider[ADOMetricsExtensionProvider]
+        
+        GitHubProvider -.implements.-> IProvider
+        ADOProvider -.implements.-> IProvider
+        
+        GitHubScheduler[GitHubMetricsScheduler]
+        ADOScheduler[ADOMetricsScheduler]
+        
+        GitHubScheduler -.implements.-> IScheduler
+        ADOScheduler -.implements.-> IScheduler
+    end
+    
+    subgraph "GitHub Implementation"
+        GitHubAPI[GitHubApiClient<br/>GraphQL Client]
+        GitHubSync[GitHubPRMetricsSynchronizer]
+        GitHubReviewerSync[GitHubReviewerMetricsSynchronizer]
+        
+        GitHubProvider --> GitHubScheduler
+        GitHubProvider --> GitHubAPI
+        GitHubScheduler --> GitHubSync
+        GitHubSync --> GitHubReviewerSync
+    end
+    
+    subgraph "ADO Implementation"
+        ADOAPI[ADOApiClient<br/>REST Client]
+        ADOSync[ADOMetricsSynchronizer]
+        WorkItemClient[WorkItemClient]
+        
+        ADOProvider --> ADOScheduler
+        ADOProvider --> ADOAPI
+        ADOScheduler --> ADOSync
+        ADOSync --> WorkItemClient
+    end
+    
+    style IProvider fill:#ffeb3b
+    style GitHubProvider fill:#81c784
+    style ADOProvider fill:#81c784
+```
+
+#### Metrics.GitHub
+- **Purpose**: GitHub-specific implementation
+- **Features**:
+  - GraphQL API integration
+  - PR metrics synchronization
+  - Reviewer metrics tracking
+  - Copilot review analytics
+  - Team membership resolution
+  - Commit-level analysis
+
+**Key Classes**:
+- `GitHubExtensionProvider`: Provider registration and configuration
+- `GitHubApiClient`: GraphQL API client
+- `GitHubPRMetricsSynchronizer`: PR data synchronization
+- `GitHubReviewerMetricsSynchronizer`: Reviewer data synchronization
+- `GitHubMetricsScheduler`: Scheduled data collection
+
+#### Metrics.ADO (Azure DevOps)
+- **Purpose**: Azure DevOps-specific implementation
+- **Features**:
+  - REST API integration
+  - Work item tracking
+  - Pull request metrics
+  - Team project management
+  - Azure DevOps work item linking
+
+**Key Classes**:
+- `ADOMetricsExtensionProvider`: Provider registration
+- `ADOApiClient`: REST API client
+- `ADOMetricsSynchronizer`: Data synchronization
+- `WorkItemClient`: Work item operations
+- `ADOMetricsScheduler`: Scheduled collection
+
+### 3. API Layer (Metrics.MCP.StreamableHTTP)
+
+The API layer provides multiple access methods to metrics data.
+
+```mermaid
+graph LR
+    subgraph "API Surface"
+        MCP[MCP Server<br/>Model Context Protocol]
+        OData[OData v4 Endpoints]
+        Controllers[ASP.NET Controllers]
+    end
+    
+    subgraph "Authentication"
+        OAuth[OAuth 2.0<br/>Okta]
+        ApiKey[API Key<br/>Header Auth]
+        Basic[Basic Auth]
+    end
+    
+    subgraph "MCP Tools"
+        MetricsTool[Metrics Tool<br/>PR Queries]
+        AuthorTool[Author Metrics Tool<br/>Author Stats]
+        ReviewerTool[Reviewer Metrics Tool<br/>Reviewer Stats]
+        SprintTool[Sprint Tool<br/>Sprint Info]
+    end
+    
+    subgraph "OData Entities"
+        PRMetrics[PRMetricsEx]
+        Teams[Teams]
+        Sprints[Sprints]
+        Authors[Author Metrics]
+        Reviewers[Reviewer Metrics]
+        Copilot[Copilot Metrics]
+    end
+    
+    MCP --> OAuth
+    MCP --> ApiKey
+    OData --> Basic
+    
+    OAuth --> MCP
+    ApiKey --> MCP
+    
+    MCP --> MetricsTool
+    MCP --> AuthorTool
+    MCP --> ReviewerTool
+    MCP --> SprintTool
+    
+    OData --> PRMetrics
+    OData --> Teams
+    OData --> Sprints
+    OData --> Authors
+    OData --> Reviewers
+    OData --> Copilot
+    
+    Controllers --> OData
+    
+    style MCP fill:#e1f5ff
+    style OData fill:#e8f5e9
+    style OAuth fill:#fff9c4
+```
+
+**Key Features**:
+- **MCP Tools**: VS Code Copilot integration
+  - Query PR metrics by various criteria
+  - Author productivity analysis
+  - Reviewer performance tracking
+  - Sprint information lookup
+
+- **OData Endpoints**: `/{tenant}/odata/*`
+  - Full OData query support ($filter, $select, $orderby, $expand)
+  - Power BI and Excel integration
+  - RESTful API access
+  - Tenant-specific routing
+
+- **Authentication**:
+  - OAuth 2.0 with Okta integration
+  - API Key authentication
+  - Basic authentication for tools
+  - Multi-tenant header (`x-tenant-id`)
+
+### 4. Multi-Tenant Architecture
+
+```mermaid
+graph TB
+    subgraph "Request Flow"
+        Request[HTTP Request<br/>x-tenant-id: learn]
+    end
+    
+    subgraph "Tenant Resolution"
+        Middleware[Multi-Tenant Middleware]
+        TenantStore[Tenant Configuration Store]
+    end
+    
+    subgraph "Tenant Context"
+        TenantInfo[Tenant Info<br/>Name, Id, Config]
+        TenantConfig[Tenant Configuration<br/>GitHub Orgs, Repos, Teams]
+    end
+    
+    subgraph "Data Isolation"
+        TenantDB[Tenant-Specific DbContext]
+        Schema[Schema/Table Isolation]
+    end
+    
+    subgraph "Configuration"
+        LearnConfig[appsettings.learn.json<br/>Learn Product Config]
+        IlluminateConfig[appsettings.illuminate.json<br/>Illuminate Product Config]
+        BaseConfig[appsettings.json<br/>Base Configuration]
+    end
+    
+    Request --> Middleware
+    Middleware --> TenantStore
+    TenantStore --> TenantInfo
+    TenantInfo --> TenantConfig
+    TenantConfig --> TenantDB
+    TenantDB --> Schema
+    
+    BaseConfig --> TenantStore
+    LearnConfig --> TenantStore
+    IlluminateConfig --> TenantStore
+    
+    style Request fill:#ffcdd2
+    style TenantInfo fill:#c8e6c9
+    style TenantDB fill:#b3e5fc
+```
+
+**Tenant Isolation**:
+- Header-based tenant identification (`x-tenant-id`)
+- Tenant-specific configuration (GitHub orgs, repos, teams)
+- Isolated data storage per tenant
+- Configurable via `appsettings.{tenant}.json`
+
+### 5. Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Scheduler as Background Scheduler
+    participant Sync as Data Synchronizer
+    participant Provider as GitHub/ADO Provider
+    participant API as External API
+    participant Analyzer as PR Analyzer
+    participant EF as Entity Framework
+    participant DB as Database
+    
+    Scheduler->>Sync: Trigger Collection (Cron)
+    Sync->>Provider: Get Latest PRs
+    Provider->>API: Query PRs (since last run)
+    API-->>Provider: PR Data
+    Provider->>Analyzer: Analyze PR Metrics
+    Analyzer-->>Provider: Calculated Metrics
+    Provider-->>Sync: PR Metrics
+    Sync->>EF: Save Metrics
+    EF->>DB: Persist Data
+    DB-->>EF: Success
+    EF-->>Sync: Saved
+    Sync->>Sync: Update Run Status
+    
+    Note over Scheduler,DB: Scheduled every 30 minutes (configurable)
+```
+
+**Data Collection Process**:
+1. **Scheduler Trigger**: Cron-based background service triggers collection
+2. **Provider Query**: Query external API for new/updated PRs since last run
+3. **Analysis**: Calculate metrics (cycle time, lead time, maturity, etc.)
+4. **Persistence**: Save to database via EF Core
+5. **Status Tracking**: Record run status for incremental updates
+
+### 6. Database Architecture
+
+```mermaid
+graph TB
+    subgraph "Migration Projects"
+        GitHubSQLite[Metrics.GitHub.Migrations.Sqlite]
+        GitHubPostgres[Metrics.GitHub.Migrations.Postgres]
+        ADOSQLite[Metrics.ADO.Migrations.Sqlite]
+        ADOPostgres[Metrics.ADO.Migrations.Postgres]
+    end
+    
+    subgraph "DbContext"
+        GitHubContext[GitHub DbContext]
+        ADOContext[ADO DbContext]
+    end
+    
+    subgraph "Databases"
+        SQLite[(SQLite<br/>Local Dev)]
+        Postgres[(PostgreSQL<br/>Production)]
+        CloudDB[(PostgreSQL<br/>Cloud Hosted)]
+    end
+    
+    GitHubSQLite --> GitHubContext
+    GitHubPostgres --> GitHubContext
+    ADOSQLite --> ADOContext
+    ADOPostgres --> ADOContext
+    
+    GitHubContext --> SQLite
+    GitHubContext --> Postgres
+    ADOContext --> SQLite
+    ADOContext --> Postgres
+    
+    Postgres --> CloudDB
+    
+    style GitHubContext fill:#fff3e0
+    style ADOContext fill:#fff3e0
+    style SQLite fill:#e1f5ff
+    style Postgres fill:#c5e1a5
+    style CloudDB fill:#c5e1a5
+```
+
+**Database Strategy**:
+- **Provider-Specific**: Separate DbContext per provider (GitHub, ADO)
+- **Multi-Database**: SQLite for development, PostgreSQL for production
+- **Separate Migrations**: Independent migration projects per provider and database
+- **Cloud Integration**: Cloud-hosted PostgreSQL with remote Data API support
+
+**Key Tables**:
+- `PRMetrics`: Pull request metrics
+- `Teams`: Team configuration
+- `Contributors`: Contributor statistics
+- `ReviewerMetrics`: Reviewer performance
+- `Sprints`: Sprint calendar
+- `CopilotReviewMetrics`: Copilot review statistics
+- `RunStatus`: Synchronization tracking
+
+### 7. Background Scheduler
+
+```mermaid
+graph LR
+    subgraph "Scheduler Service"
+        Hosted[IHostedService<br/>MetricsSchedulerService]
+        Cron[Cron Expression<br/>Every 30 Minutes]
+        Config[Configuration<br/>Schedule Settings]
+    end
+    
+    subgraph "Execution"
+        Trigger[Trigger Event]
+        Provider[Provider Loop]
+        Collect[Collect Metrics]
+        Store[Store Data]
+        Log[Log Status]
+    end
+    
+    subgraph "Error Handling"
+        Retry[Retry Logic]
+        ErrorLog[Error Logging]
+        Resilience[Resilient Execution]
+    end
+    
+    Hosted --> Cron
+    Config --> Hosted
+    
+    Cron --> Trigger
+    Trigger --> Provider
+    Provider --> Collect
+    Collect --> Store
+    Store --> Log
+    
+    Collect -.error.-> Retry
+    Retry -.failed.-> ErrorLog
+    Retry -.success.-> Store
+    
+    Hosted --> Resilience
+    
+    style Hosted fill:#fff9c4
+    style Collect fill:#c8e6c9
+    style ErrorLog fill:#ffcdd2
+```
+
+**Features**:
+- ASP.NET Core hosted background service
+- Configurable cron schedule (default: every 30 minutes)
+- Incremental updates (only new/changed data)
+- Error resilience and logging
+- Run status tracking for auditing
+
+## Technology Stack
+
+### Core Framework
+- **.NET 9.0**: Latest LTS version with AOT support
+- **C# 13**: Modern language features
+- **ASP.NET Core**: Web API and hosting
+
+### Data Access
+- **Entity Framework Core**: ORM with migrations
+- **SQLite**: Local development database
+- **PostgreSQL**: Production database
+- **Npgsql**: PostgreSQL provider
+
+### API & Integration
+- **OData v4**: Flexible query capabilities
+- **Model Context Protocol (MCP)**: VS Code Copilot integration
+- **GraphQL**: GitHub API integration
+- **REST**: Azure DevOps API integration
+
+### Authentication & Security
+- **OAuth 2.0**: OpenID Connect with Okta
+- **API Key**: Header-based authentication
+- **JWT**: Token validation
+- **Multi-Tenant**: Finbuckle.MultiTenant
+
+### Cloud & DevOps
+- **Docker**: Containerization
+- **Infrastructure as Code**: e.g., CDK, Terraform, or Pulumi
+- **Container Orchestration**: e.g., Fargate, Kubernetes, or Azure Container Apps
+- **Cloud Database**: PostgreSQL (hosted on your cloud provider of choice)
+- **Secrets Management**: e.g., cloud-native secrets manager or Kubernetes Secrets
+
+### Build & Deployment
+- **GitHub Actions**: CI/CD pipelines
+- **dotnet CLI**: Build and publish
+- **EF Core Tools**: Migration management
+
+## Deployment Architecture
+
+```mermaid
+graph TB
+    subgraph "Cloud Hosting"
+        subgraph "Container Cluster"
+            Container1[Container Instance 1<br/>Metrics.MCP.StreamableHTTP]
+            Container2[Container Instance 2<br/>Metrics.MCP.StreamableHTTP]
+        end
+        
+        subgraph "Data Tier"
+            DB[(PostgreSQL<br/>Multi-AZ)]
+            Secrets[Secrets Manager<br/>API Keys, Credentials]
+        end
+        
+        subgraph "Networking"
+            ALB[Application Load Balancer]
+            API_GW[API Gateway<br/>Optional]
+        end
+        
+        subgraph "Monitoring"
+            Logs[Centralized Logs]
+            Metrics_Mon[Cloud Metrics]
+        end
+    end
+    
+    subgraph "External"
+        GitHub_API[GitHub API]
+        ADO_API[Azure DevOps API]
+        IdP[Identity Provider<br/>OAuth]
+    end
+    
+    ALB --> Container1
+    ALB --> Container2
+    
+    Container1 --> DB
+    Container2 --> DB
+    
+    Container1 --> Secrets
+    Container2 --> Secrets
+    
+    Container1 --> GitHub_API
+    Container2 --> GitHub_API
+    Container1 --> ADO_API
+    Container2 --> ADO_API
+    
+    Container1 --> IdP
+    Container2 --> IdP
+    
+    Container1 --> Logs
+    Container2 --> Logs
+    Container1 --> Metrics_Mon
+    Container2 --> Metrics_Mon
+    
+    style Container1 fill:#e1f5ff
+    style Container2 fill:#e1f5ff
+    style DB fill:#c5e1a5
+    style ALB fill:#fff9c4
+```
+
+## Configuration Management
+
+### Environment Variables
+
+**GitHub Authentication**:
+```bash
+{tenant}__GitHub__PAT="ghp_token"
+```
+
+**Database Connection**:
+```bash
+ConnectionStrings__SQLite="Data source=/path/to/devmetrics.db"
+ConnectionStrings__Postgres="Host=localhost;Port=5432;Database=devmetrics;Username=user;Password=pwd"
+```
+
+**Product Selection**:
+```bash
+PRODUCT="learn"  # or "illuminate"
+```
+
+### Configuration Files
+
+- `appsettings.json`: Base configuration
+- `appsettings.learn.json`: Learn product overrides
+- `appsettings.illuminate.json`: Illuminate product overrides
+- `appsettings.kestrel.json`: Kestrel web server configuration
+
+## Extension Points
+
+### Adding a New Provider
+
+1. **Create Provider Project**: `Metrics.NewProvider`
+2. **Implement Interface**: `IMetricsExtensionProvider`
+3. **Create API Client**: Provider-specific API integration
+4. **Implement Synchronizer**: Data collection logic
+5. **Add Scheduler**: Background collection service
+6. **Register Services**: `IServiceConfigurator` implementation
+7. **Configure OData**: `IODataConfigurator` implementation
+8. **Create Migrations**: Provider-specific database projects
+
+### Adding New Metrics
+
+1. **Update Models**: Add properties to `PRMetricsEx` or create new model
+2. **Update Analyzer**: Add calculation logic in `PRAnalyzer`
+3. **Update Migrations**: Generate and apply database migrations
+4. **Update OData**: Configure EDM model if needed
+5. **Update MCP Tools**: Add query capabilities if needed
+
+## Security Considerations
+
+### Authentication
+- OAuth 2.0 with PKCE flow for VS Code integration
+- API Key rotation via secrets management
+- JWT token validation with your configured identity provider
+- Header-based tenant validation
+
+### Authorization
+- Tenant-based data isolation
+- Role-based access control (future)
+- API rate limiting (future)
+
+### Data Protection
+- Encrypted connections (TLS)
+- Secrets stored in a secrets manager (never in code or config files)
+- Environment variable configuration
+- No credentials in code or config files
+
+## Performance Optimization
+
+### Caching
+- Resource caching in GitHub provider
+- Team membership caching
+- Sprint calendar caching
+
+### Database
+- Indexed queries on key fields
+- Batch operations for bulk inserts
+- Pagination in OData endpoints
+- Connection pooling
+
+### API Efficiency
+- GraphQL for precise data fetching (GitHub)
+- Incremental synchronization
+- Parallel processing where applicable
+- Efficient serialization
+
+## Monitoring & Observability
+
+### Logging
+- Structured logging with Serilog
+- Cloud logging integration (e.g., CloudWatch, Azure Monitor, Datadog)
+- Log levels: Debug, Information, Warning, Error
+- Correlation IDs for request tracking
+
+### Metrics
+- Cloud metrics integration
+- Run status tracking
+- API performance metrics
+- Error rates and trends
+
+### Health Checks
+- Database connectivity
+- External API availability
+- Background service status
+
+## Future Enhancements
+
+### Planned Features
+- Real-time webhooks for instant updates
+- Advanced analytics and ML insights
+- Custom dashboard builder
+- Team comparison and benchmarking
+
+## References
+
+- [OData Documentation](./OData.md)
+- [Migration Scripts](../scripts/README.md)
+- [Main README](../README.md)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
+- [Finbuckle.MultiTenant](https://www.finbuckle.com/MultiTenant)

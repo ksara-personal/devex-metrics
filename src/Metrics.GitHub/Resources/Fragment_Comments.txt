@@ -1,0 +1,16 @@
+fragment PullRequestComments on PullRequest {
+  comments(first:$commentsCount,after:$afterComment) {
+        totalCount
+          pageInfo{
+            hasNextPage
+            endCursor
+          }
+        nodes {
+          author {
+            login
+          }
+          body
+          createdAt
+        }
+    }
+}

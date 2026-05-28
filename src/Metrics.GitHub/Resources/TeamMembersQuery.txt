@@ -1,0 +1,22 @@
+query($owner: String!, $query: String!, $after: String!) {
+  organization(login: $owner) {
+    teams(first: 100, query:$query, after:$after,orderBy:{field:NAME,direction:ASC}) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        name
+        slug
+        members(first:50){
+          nodes{
+            login
+            name
+            email
+          }
+        }
+      }
+    }
+  }
+}
