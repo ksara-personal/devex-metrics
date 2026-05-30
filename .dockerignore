@@ -15,7 +15,6 @@
 **/*.user
 **/*.suo
 **/*.userprefs
-**/.idea/
 
 # OS files
 **/.DS_Store
