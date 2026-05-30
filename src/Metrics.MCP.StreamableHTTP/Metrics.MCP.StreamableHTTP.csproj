@@ -6,25 +6,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-   <None Include="../../../../configs/appsettings.json">
+   <None Include="../../configs/appsettings.json">
      <Link>appsettings.json</Link>
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </None>
   </ItemGroup>
   <ItemGroup>
-   <None Include="../../../../configs/appsettings.tenant-1.json">
+   <None Include="../../configs/appsettings.tenant-1.json">
      <Link>appsettings.tenant-1.json</Link>
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </None>
   </ItemGroup>
   <ItemGroup>
-   <None Include="../../../../configs/appsettings.tenant-2.json">
+   <None Include="../../configs/appsettings.tenant-2.json">
      <Link>appsettings.tenant-2.json</Link>
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </None>
   </ItemGroup>
   <ItemGroup>
-   <None Include="../../../../configs/appsettings.kestrel.json">
+   <None Include="../../configs/appsettings.kestrel.json">
      <Link>appsettings.kestrel.json</Link>
      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
    </None>
@@ -48,9 +48,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../Metrics.Models/Metrics.Models.csproj" />
-    <ProjectReference Include="../../../Metrics/Metrics.csproj" />
-    <ProjectReference Include="../../../Metrics.ADO/Metrics.ADO.csproj" />
-    <ProjectReference Include="../../../Metrics.GitHub/Metrics.GitHub.csproj" />
+    <ProjectReference Include="../Metrics.Models/Metrics.Models.csproj" />
+    <ProjectReference Include="../Metrics/Metrics.csproj" />
+    <ProjectReference Include="../Metrics.ADO/Metrics.ADO.csproj" />
+    <ProjectReference Include="../Metrics.GitHub/Metrics.GitHub.csproj" />
   </ItemGroup>
 </Project>

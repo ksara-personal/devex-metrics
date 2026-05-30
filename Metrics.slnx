@@ -14,7 +14,7 @@
     <Project Path="src/tests/Metrics.Extensions.ADO.Tests/Metrics.Extensions.ADO.Tests.csproj" />
     <Project Path="src/tests/Metrics.Tests/Metrics.Tests.csproj" />
   </Folder>
-  <Project Path="src/mcp/dotnet/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" />
+  <Project Path="src/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" />
   <Project Path="src/Metrics.ADO/Metrics.ADO.csproj" />
   <Project Path="src/Metrics.GitHub/Metrics.GitHub.csproj" />
   <Project Path="src/Metrics.Models/Metrics.Models.csproj" />

@@ -46,7 +46,8 @@ public abstract class ADOTestBase
             Name = tenantId,
             ConfigurationFile = $"appsettings.{tenantId}.json"
         };
-        var multiTenantContext = new MultiTenantContext<AppTenantInfo> { TenantInfo = tenant };
+        
+        var multiTenantContext = new Finbuckle.MultiTenant.Abstractions.MultiTenantContext<AppTenantInfo>( tenant );
         contextSetter.MultiTenantContext = multiTenantContext;
     }
 }
