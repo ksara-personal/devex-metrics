@@ -1,6 +1,6 @@
-# DevMetrics
+# Developer Efficiency Metrics
 
-DevMetrics is a cross-platform .NET 10.0 solution for extracting, analyzing, and reporting software engineering metrics from GitHub and Azure DevOps pull requests. It supports multi-tenant deployments, querying by team, author, value stream, sprint, and more, and can output results to JSON files, a database, or expose data through OData and MCP (Model Context Protocol) endpoints.
+DevExMetrics is a cross-platform and multi tenant .NET 10.0 solution for extracting, analyzing, and reporting software engineering metrics from GitHub and Azure DevOps pull requests. It supports multi-tenant deployments, querying by team, author, value stream, sprint, and more, and can output results to JSON files, a database, or expose data through OData and MCP (Model Context Protocol) endpoints.
 
 ## Projects
 
@@ -53,11 +53,9 @@ DevMetrics is a cross-platform .NET 10.0 solution for extracting, analyzing, and
 |---|---|
 | **SQLite** | Local development (default) |
 | **PostgreSQL** | Production deployments |
-| **File** | JSON file export/import |
 | **InMemory** | Testing |
-| **API** | Live sync directly from GitHub API |
 
-`DataStoreType` in `appsettings.json` accepts: `SQLite`, `Postgres`, `File`, `InMemory`, `API` (case-insensitive).
+`DataStoreType` in `appsettings.json` accepts: `SQLite`, `Postgres`, `InMemory` (case-insensitive).
 
 ## Multi-Tenant Architecture
 
