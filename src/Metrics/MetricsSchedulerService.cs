@@ -83,8 +83,9 @@ public sealed class MetricsSchedulerService : BackgroundService
                             var tenantSp = tenantScope.ServiceProvider;
 
                             // Set the tenant context for this scope
+                            
                             var contextSetter = tenantSp.GetRequiredService<IMultiTenantContextSetter>();
-                            var multiTenantContext = new Finbuckle.MultiTenant.MultiTenantContext<AppTenantInfo> { TenantInfo = tenant };
+                            var multiTenantContext = new Finbuckle.MultiTenant.Abstractions.MultiTenantContext<AppTenantInfo>( tenant );
                             contextSetter.MultiTenantContext = multiTenantContext;
 
                             var schedulers = tenantSp.GetServices<IMetricsScheduler>().OrderBy(s => s.Priority).ToList();

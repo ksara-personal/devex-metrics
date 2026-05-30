@@ -7,7 +7,7 @@ namespace Metrics.MultiTenant;
 /// Service for accessing tenant-specific configuration.
 /// Resolves values using a layered strategy:
 ///   1. Tenant's inline Settings dictionary
-///   2. Tenant's ConfigurationFile (e.g., appsettings.learn.json)
+///   2. Tenant's ConfigurationFile (e.g., appsettings.tenant-1.json)
 ///   3. Global application configuration
 /// </summary>
 public sealed class TenantConfigurationService

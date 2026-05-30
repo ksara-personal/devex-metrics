@@ -89,7 +89,7 @@ public abstract class TestBase
     /// <summary>
     /// Sets the tenant context for the current test.
     /// </summary>
-    /// <param name="tenantId">The tenant identifier (e.g., "learn" or "illuminate")</param>
+    /// <param name="tenantId">The tenant identifier (e.g., "tenant-1" or "tenant-2")</param>
     protected void SetTenant(string tenantId)
     {
         var contextSetter = _host.Services.GetRequiredService<IMultiTenantContextSetter>();

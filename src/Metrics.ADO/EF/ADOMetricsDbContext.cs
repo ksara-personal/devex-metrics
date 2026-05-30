@@ -3,7 +3,7 @@ using Metrics.ADO.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
 using Finbuckle.MultiTenant.Abstractions;
 
 namespace Metrics.ADO.EF;

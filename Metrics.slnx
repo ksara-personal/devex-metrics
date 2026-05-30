@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Migrations/">
+    <Project Path="src/Migrations/Metrics.ADO.Migrations.Postgres/Metrics.ADO.Migrations.Postgres.csproj" />
+    <Project Path="src/Migrations/Metrics.ADO.Migrations.Sqlite/Metrics.ADO.Migrations.Sqlite.csproj" />
+    <Project Path="src/Migrations/Metrics.GitHub.Migrations.Postgres/Metrics.GitHub.Migrations.Postgres.csproj" />
+    <Project Path="src/Migrations/Metrics.GitHub.Migrations.Sqlite/Metrics.GitHub.Migrations.Sqlite.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="src/tests/Metrics.Extensions.ADO.Tests/Metrics.Extensions.ADO.Tests.csproj" />
+    <Project Path="src/tests/Metrics.Tests/Metrics.Tests.csproj" />
+  </Folder>
+  <Project Path="src/mcp/dotnet/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" />
+  <Project Path="src/Metrics.ADO/Metrics.ADO.csproj" />
+  <Project Path="src/Metrics.GitHub/Metrics.GitHub.csproj" />
+  <Project Path="src/Metrics.Models/Metrics.Models.csproj" />
+  <Project Path="src/Metrics/Metrics.csproj" />
+</Solution>

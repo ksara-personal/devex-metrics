@@ -21,8 +21,8 @@ public sealed class CustomSynchronizerTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", "2025-10-01", "2025-10-31", "your-github-org", "repo-1")]
-    [InlineData("learn", "2025-10-01", "2025-10-31", "your-github-org", "repo-2")]
+    [InlineData("tenant-1", "2025-10-01", "2025-10-31", "your-github-org", "repo-1")]
+    [InlineData("tenant-1", "2025-10-01", "2025-10-31", "your-github-org", "repo-2")]
     public async Task Custom_GitHubPRMetrics_Synchronizer_TestAsync(string tenantId, DateTime start, DateTime end, string ownerOrg, string repo)
     {
         SetTenant(tenantId);

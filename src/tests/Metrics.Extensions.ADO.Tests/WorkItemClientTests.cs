@@ -119,8 +119,8 @@ public class WorkItemClientInputValidationTests : ADOTestBase
     }
 
     [Theory]
-    [InlineData("learn")]
-    [InlineData("illuminate")]
+    [InlineData("tenant-1")]
+    [InlineData("tenant-2")]
     public async Task Execute_OData_Query(string tenantId)
     {
         SetTenant(tenantId);

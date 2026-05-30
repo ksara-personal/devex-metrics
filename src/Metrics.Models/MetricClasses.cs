@@ -423,7 +423,7 @@ public sealed class RunStatus
 /// <summary>
 /// Represents the history of data migrations.
 /// </summary>
-[Table("datamigrationhistory"), MultiTenant]
+[Table("datamigrationhistory"), Finbuckle.MultiTenant.Abstractions.MultiTenant]
 public class DataMigrationHistory
 {
     public const int MigrationColumnLength = 150;

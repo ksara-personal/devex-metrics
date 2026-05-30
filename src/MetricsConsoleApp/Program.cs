@@ -65,7 +65,7 @@ public class Program
         var teamOption = new Option<string>("--team", "Team name") { IsRequired = false };
         teamOption.AddAlias("-tn");
 
-        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., learn, illuminate)") { IsRequired = true };
+        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., tenant-1, tenant-2)") { IsRequired = true };
         tenantIdOption.AddAlias("-tid");
 
         var exportCommand = new Command("export", "Exports from the source data store to the target data store")
@@ -100,7 +100,7 @@ public class Program
         var endOption = new Option<DateTime?>("--end", "End date") { IsRequired = false };
         endOption.AddAlias("-ed");
 
-        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., learn, illuminate)") { IsRequired = true };
+        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., tenant-1, tenant-2)") { IsRequired = true };
         tenantIdOption.AddAlias("-tid");
 
         var exportCommand = new Command("export-team-metrics", "Exports teams specific metrics to the file")
@@ -151,7 +151,7 @@ public class Program
         var endOption = new Option<DateTime>("--end", "End date") { IsRequired = true };
         endOption.AddAlias("-e");
 
-        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., learn, illuminate)") { IsRequired = true };
+        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., tenant-1, tenant-2)") { IsRequired = true };
         tenantIdOption.AddAlias("-tid");
 
         var writeCommand = new Command("writetofile", "Write metrics to json file")
@@ -182,7 +182,7 @@ public class Program
         var endOption = new Option<DateTime?>("--end", "End date"){ IsRequired = false };
         endOption.AddAlias("-e");
 
-        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., learn, illuminate)") { IsRequired = true };
+        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., tenant-1, tenant-2)") { IsRequired = true };
         tenantIdOption.AddAlias("-tid");
 
         var writeCommand = new Command("writetodb", "Write all metrics to database since a predefined date to until now")
@@ -217,7 +217,7 @@ public class Program
         var endOption = new Option<DateTime>("--end", "End date"){ IsRequired = true };
         endOption.AddAlias("-e");
 
-        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., learn, illuminate)") { IsRequired = true };
+        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., tenant-1, tenant-2)") { IsRequired = true };
         tenantIdOption.AddAlias("-tid");
 
         var getCommand = new Command("getbyauthor", "Gets the metrics of the PR author")
@@ -247,7 +247,7 @@ public class Program
         var idOption = new Option<int>("--id", "Pull request id"){ IsRequired = true };
         idOption.AddAlias("-id");
 
-        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., learn, illuminate)") { IsRequired = true };
+        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., tenant-1, tenant-2)") { IsRequired = true };
         tenantIdOption.AddAlias("-tid");
 
         var getCommand = new Command("getbyid", "Gets the metrics of the PR for the given id")
@@ -280,7 +280,7 @@ public class Program
         var endOption = new Option<DateTime>("--end", "End date"){ IsRequired = true };
         endOption.AddAlias("-e");
 
-        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., learn, illuminate)") { IsRequired = true };
+        var tenantIdOption = new Option<string>("--tenant-id", "Tenant identifier (e.g., tenant-1, tenant-2)") { IsRequired = true };
         tenantIdOption.AddAlias("-tid");
 
         var getCommand = new Command("getbyteam", "Gets the metrics for a team")
@@ -320,7 +320,7 @@ public class Program
     /// Sets the tenant context for the command execution.
     /// </summary>
     /// <param name="serviceProvider"></param>
-    /// <param name="tenantId">The tenant identifier (e.g., "learn", "illuminate")</param>
+    /// <param name="tenantId">The tenant identifier (e.g., "tenant-1", "tenant-2")</param>
     static void SetTenantContext(IServiceProvider serviceProvider, string tenantId)
     {
         var contextSetter = serviceProvider.GetRequiredService<IMultiTenantContextSetter>();

@@ -4,10 +4,6 @@
 **/out/
 **/publish/
 
-# Dependencies
-**/node_modules/
-**/packages/
-
 # Version control
 **/.git/
 **/.gitignore
@@ -30,10 +26,6 @@
 **/logs/
 **/tmp/
 **/temp/
-
-# CDK outputs
-**/cdk.out/
-**/cdk.context.json
 
 # Docker files (don't copy into container)
 **/Dockerfile*

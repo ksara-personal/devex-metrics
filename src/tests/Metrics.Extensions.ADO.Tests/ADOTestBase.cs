@@ -35,7 +35,7 @@ public abstract class ADOTestBase
     /// Sets the tenant context for the test.
     /// Use this method before calling services that depend on tenant configuration.
     /// </summary>
-    /// <param name="tenantId">The tenant identifier (e.g., "learn", "illuminate")</param>
+    /// <param name="tenantId">The tenant identifier (e.g., "tenant-1", "tenant-2")</param>
     protected void SetTenant(string tenantId)
     {
         var contextSetter = _host.Services.GetRequiredService<IMultiTenantContextSetter>();

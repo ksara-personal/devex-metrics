@@ -11,8 +11,8 @@ public sealed class DataSynchronizerTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", "your-github-org/repo-1", 1)]
-    [InlineData("learn", "your-github-org/repo-2", 2)]
+    [InlineData("tenant-1", "your-github-org/repo-1", 1)]
+    [InlineData("tenant-1", "your-github-org/repo-2", 2)]
     public async Task Get_Metrics_ById_Using_API_Async(string tenantId, string repo, int prId)
     {
         SetTenant(tenantId);
@@ -45,8 +45,8 @@ public sealed class DataSynchronizerTests : TestBase
     }
     
     [Theory]
-    [InlineData("learn", "2025-09-24", "2025-10-07T23:59")]
-    [InlineData("illuminate", "2025-09-24", "2025-10-07T23:59")]
+    [InlineData("tenant-1", "2025-09-24", "2025-10-07T23:59")]
+    [InlineData("tenant-2", "2025-09-24", "2025-10-07T23:59")]
     public async Task Write_Reviewer_Metrics_To_Database_Async(string tenantId, DateTime start, DateTime end)
     {
         SetTenant(tenantId);

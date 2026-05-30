@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
-using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Finbuckle.MultiTenant.Extensions;
 using Metrics.DataMigrations;
 using Metrics.EF;
 using Metrics.Models;
@@ -41,10 +42,11 @@ public static class ServiceCollectionExtensions
         var extensionsSettings = tempConfig.GetSection(ConfigSectionNames.MetricsExtensions).Get<MetricsExtensionsSettings>();
 
         // Register Finbuckle.MultiTenant with header-based strategy and configuration store
+        
         services.AddMultiTenant<AppTenantInfo>()
             .WithHeaderStrategy("X-Tenant-Id")
             .WithBasePathStrategy(options => options.RebaseAspNetCorePathBase = true)
-            .WithRouteStrategy("__tenant__")
+            .WithRouteStrategy("__tenant__",true)
             .WithConfigurationStore(tempConfig, ConfigSectionNames.TenantConfigurationStore);
 
         // Register tenant configuration provider (singleton) that loads and caches per-tenant config files

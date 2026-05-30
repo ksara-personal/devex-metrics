@@ -30,8 +30,8 @@ public sealed class DataClientTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", "2025-01-01", "2025-07-10")]
-    [InlineData("illuminate", "2025-01-01", "2025-07-10")]
+    [InlineData("tenant-1", "2025-01-01", "2025-07-10")]
+    [InlineData("tenant-2", "2025-01-01", "2025-07-10")]
     public async Task Query_Copilot_Review_Metrics_Async(string tenantId, DateTime start, DateTime end)
     {
         SetTenant(tenantId);
@@ -40,8 +40,8 @@ public sealed class DataClientTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", "2025-01-01", "2025-07-10")]
-    [InlineData("illuminate", "2025-01-01", "2025-07-10")]
+    [InlineData("tenant-1", "2025-01-01", "2025-07-10")]
+    [InlineData("tenant-2", "2025-01-01", "2025-07-10")]
     public async Task Query_Copilot_Review_Metrics_Summary_For_Teams_Async(string tenantId, DateTime start, DateTime end)
     {
         SetTenant(tenantId);
@@ -56,8 +56,8 @@ public sealed class DataClientTests : TestBase
     /// <param name="prId"></param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "your-github-org/repo-1", 1)]
-    [InlineData("learn", "your-github-org/repo-2", 2)]
+    [InlineData("tenant-1", "your-github-org/repo-1", 1)]
+    [InlineData("tenant-1", "your-github-org/repo-2", 2)]
     public async Task Query_Metrics_ById_Async(string tenantId, string repo, int prId)
     {
         SetTenant(tenantId);
@@ -79,10 +79,10 @@ public sealed class DataClientTests : TestBase
     public static IEnumerable<object[]> GetTestDataForQueryByTeam()
     {
         var current = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
-        yield return new object[] { "learn", DataStoreType.InMemory, "Alpha", new DateTime(current.Year, 1, 1), current };
-        yield return new object[] { "learn", DataStoreType.Postgres, "Beta", new DateTime(current.Year, 1, 1), current };
-        yield return new object[] { "learn", DataStoreType.File, "Alpha", new DateTime(current.Year, 1, 1), current };
-        yield return new object[] { "illuminate", DataStoreType.File, "Beta", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-1", DataStoreType.InMemory, "Alpha", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-1", DataStoreType.Postgres, "Beta", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-1", DataStoreType.File, "Alpha", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-2", DataStoreType.File, "Beta", new DateTime(current.Year, 1, 1), current };
     }
 
     /// <summary>
@@ -115,9 +115,9 @@ public sealed class DataClientTests : TestBase
     {
         // test by email, name and login.
         var current = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
-        yield return new object[] { "learn", "author@example.com", new DateTime(current.Year, 1, 1), current };
-        yield return new object[] { "learn", "github-user-1", new DateTime(current.Year, 1, 1), current };
-        yield return new object[] { "learn", "github-user-2", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-1", "author@example.com", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-1", "github-user-1", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-1", "github-user-2", new DateTime(current.Year, 1, 1), current };
     }
 
     /// <summary>
@@ -151,8 +151,8 @@ public sealed class DataClientTests : TestBase
     /// <param name="end"></param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "nonexistent_author", "2025-01-01", "2025-12-31")]
-    [InlineData("illuminate", "nonexistent_author", "2025-01-01", "2025-12-31")]
+    [InlineData("tenant-1", "nonexistent_author", "2025-01-01", "2025-12-31")]
+    [InlineData("tenant-2", "nonexistent_author", "2025-01-01", "2025-12-31")]
     public async Task Query_Metrics_ByAuthor_Async_With_Failures(string tenantId, string author, DateTime start, DateTime end)
     {
         SetTenant(tenantId);
@@ -174,8 +174,8 @@ public sealed class DataClientTests : TestBase
     /// <param name="end"></param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "no_team", "2025-06-01", "2025-06-30")]
-    [InlineData("illuminate", "no_team", "2025-06-01", "2025-06-30")]
+    [InlineData("tenant-1", "no_team", "2025-06-01", "2025-06-30")]
+    [InlineData("tenant-2", "no_team", "2025-06-01", "2025-06-30")]
     public async Task Query_Metrics_ByTeam_Async_With_Failures(string tenantId, string author, DateTime start, DateTime end)
     {
         SetTenant(tenantId);
@@ -185,8 +185,8 @@ public sealed class DataClientTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", "Alpha", 2025, 20)]
-    [InlineData("illuminate", "Alpha", 2025, 20)]
+    [InlineData("tenant-1", "Alpha", 2025, 20)]
+    [InlineData("tenant-2", "Alpha", 2025, 20)]
     public async Task Query_Author_Sprint_Metrics_Summary_For_Team_Async(string tenantId, string team, int year, int sprintNumber)
     {
         SetTenant(tenantId);
@@ -198,8 +198,8 @@ public sealed class DataClientTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", "Alpha", 2025, 10)]
-    [InlineData("illuminate", "Alpha", 2025, 10)]
+    [InlineData("tenant-1", "Alpha", 2025, 10)]
+    [InlineData("tenant-2", "Alpha", 2025, 10)]
     public async Task Query_Author_Monthly_Metrics_Summary_For_Team_Async(string tenantId, string team, int year, int month)
     {
         SetTenant(tenantId);
@@ -219,8 +219,8 @@ public sealed class DataClientTests : TestBase
     /// <param name="sprintNumber">The sprint number</param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "github-user-1", 2025, 20)]
-    [InlineData("learn", "github-user-2", 2025, 20)]
+    [InlineData("tenant-1", "github-user-1", 2025, 20)]
+    [InlineData("tenant-1", "github-user-2", 2025, 20)]
     public async Task Query_Author_Metrics_BySprint_Async(string tenantId, string author, int year, int sprintNumber)
     {
         SetTenant(tenantId);
@@ -243,8 +243,8 @@ public sealed class DataClientTests : TestBase
     /// <param name="month">The month (1-12)</param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "github-user-1", 2025, 10)]
-    [InlineData("learn", "github-user-2", 2025, 9)]
+    [InlineData("tenant-1", "github-user-1", 2025, 10)]
+    [InlineData("tenant-1", "github-user-2", 2025, 9)]
     public async Task Query_Author_Metrics_ByMonth_Async(string tenantId, string author, int year, int month)
     {
         SetTenant(tenantId);
@@ -267,8 +267,8 @@ public sealed class DataClientTests : TestBase
     /// <param name="sprintNumber">The sprint number</param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "nonexistent_author", 2025, 20)]
-    [InlineData("illuminate", "nonexistent_author", 2025, 20)]
+    [InlineData("tenant-1", "nonexistent_author", 2025, 20)]
+    [InlineData("tenant-2", "nonexistent_author", 2025, 20)]
     public async Task Query_Author_Metrics_BySprint_Async_With_Failures(string tenantId, string author, int year, int sprintNumber)
     {
         SetTenant(tenantId);
@@ -290,8 +290,8 @@ public sealed class DataClientTests : TestBase
     /// <param name="month">The month (1-12)</param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "nonexistent_author", 2025, 1)]
-    [InlineData("illuminate", "nonexistent_author", 2025, 1)]
+    [InlineData("tenant-1", "nonexistent_author", 2025, 1)]
+    [InlineData("tenant-2", "nonexistent_author", 2025, 1)]
     public async Task Query_Author_Metrics_ByMonth_Async_With_Failures(string tenantId, string author, int year, int month)
     {
         SetTenant(tenantId);

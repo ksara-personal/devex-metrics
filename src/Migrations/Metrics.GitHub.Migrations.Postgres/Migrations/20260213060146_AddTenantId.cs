@@ -68,12 +68,12 @@ namespace Metrics.Migrations.DevExMetricPostgresDb
                 columns: new[] { "tenant_id", "migration_id", "migration_type" },
                 unique: true);
 
-            migrationBuilder.Sql(@"UPDATE metrics SET tenant_id = 'learn' WHERE tenant_id IS NULL or tenant_id = '';
-                    UPDATE team SET tenant_id = 'learn' WHERE tenant_id IS NULL or tenant_id = '';
-                    UPDATE runstatus SET tenant_id = 'learn' WHERE tenant_id IS NULL or tenant_id = '';
-                    UPDATE reviewer_monthly_metrics SET tenant_id = 'learn' WHERE tenant_id IS NULL or tenant_id = '';
-                    UPDATE reviewer_sprint_metrics SET tenant_id = 'learn' WHERE tenant_id IS NULL or tenant_id = '';
-                    UPDATE datamigrationhistory SET tenant_id = 'learn' WHERE tenant_id IS NULL or tenant_id = '';");
+            migrationBuilder.Sql(@"UPDATE metrics SET tenant_id = 'tenant-1' WHERE tenant_id IS NULL or tenant_id = '';
+                    UPDATE team SET tenant_id = 'tenant-1' WHERE tenant_id IS NULL or tenant_id = '';
+                    UPDATE runstatus SET tenant_id = 'tenant-1' WHERE tenant_id IS NULL or tenant_id = '';
+                    UPDATE reviewer_monthly_metrics SET tenant_id = 'tenant-1' WHERE tenant_id IS NULL or tenant_id = '';
+                    UPDATE reviewer_sprint_metrics SET tenant_id = 'tenant-1' WHERE tenant_id IS NULL or tenant_id = '';
+                    UPDATE datamigrationhistory SET tenant_id = 'tenant-1' WHERE tenant_id IS NULL or tenant_id = '';");
         }
 
         /// <inheritdoc />
@@ -113,12 +113,12 @@ namespace Metrics.Migrations.DevExMetricPostgresDb
                 columns: new[] { "migration_id", "migration_type" },
                 unique: true);
             
-            migrationBuilder.Sql(@"UPDATE metrics SET tenant_id = '' WHERE tenant_id = 'learn';
-                    UPDATE team SET tenant_id = '' WHERE tenant_id = 'learn';
-                    UPDATE runstatus SET tenant_id = '' WHERE tenant_id = 'learn';
-                    UPDATE reviewer_monthly_metrics SET tenant_id = '' WHERE tenant_id = 'learn';
-                    UPDATE reviewer_sprint_metrics SET tenant_id = '' WHERE tenant_id = 'learn';
-                    UPDATE datamigrationhistory SET tenant_id = '' WHERE tenant_id = 'learn';");
+            migrationBuilder.Sql(@"UPDATE metrics SET tenant_id = '' WHERE tenant_id = 'tenant-1';
+                    UPDATE team SET tenant_id = '' WHERE tenant_id = 'tenant-1';
+                    UPDATE runstatus SET tenant_id = '' WHERE tenant_id = 'tenant-1';
+                    UPDATE reviewer_monthly_metrics SET tenant_id = '' WHERE tenant_id = 'tenant-1';
+                    UPDATE reviewer_sprint_metrics SET tenant_id = '' WHERE tenant_id = 'tenant-1';
+                    UPDATE datamigrationhistory SET tenant_id = '' WHERE tenant_id = 'tenant-1';");
         }
     }
 }

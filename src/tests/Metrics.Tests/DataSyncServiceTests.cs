@@ -13,8 +13,8 @@ public sealed class DataSyncServiceTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", null, null)]
-    [InlineData("illuminate", null, null)]
+    [InlineData("tenant-1", null, null)]
+    [InlineData("tenant-2", null, null)]
     public async Task Write_Metrics_To_SqliteDatabase_Async(string tenantId, DateTime? start, DateTime? end)
     {
         SetTenant(tenantId);
@@ -22,8 +22,8 @@ public sealed class DataSyncServiceTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn", "2025-01-01", "2025-05-01")]
-    [InlineData("illuminate", "2025-01-01", "2025-05-01")]
+    [InlineData("tenant-1", "2025-01-01", "2025-05-01")]
+    [InlineData("tenant-2", "2025-01-01", "2025-05-01")]
     public async Task Write_Metrics_To_PostgresDatabase_Async(string tenantId, DateTime start, DateTime end)
     {
         SetTenant(tenantId);
@@ -54,8 +54,8 @@ public sealed class DataSyncServiceTests : TestBase
     }
 
     [Theory]
-    [InlineData("learn")]
-    [InlineData("illuminate")]
+    [InlineData("tenant-1")]
+    [InlineData("tenant-2")]
     public async Task Update_Open_Prs_Async(string tenantId)
     {
         SetTenant(tenantId);
@@ -71,8 +71,8 @@ public sealed class DataSyncServiceTests : TestBase
     /// <param name="end"></param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "2025-10-01", "2025-10-31")]
-    [InlineData("illuminate", "2025-10-01", "2025-10-31")]
+    [InlineData("tenant-1", "2025-10-01", "2025-10-31")]
+    [InlineData("tenant-2", "2025-10-01", "2025-10-31")]
     public async Task Write_Metrics_To_InMemoryDatabase_Async(string tenantId, DateTime start, DateTime end)
     {
         SetTenant(tenantId);
@@ -123,7 +123,7 @@ public sealed class DataSyncServiceTests : TestBase
     public static IEnumerable<object[]> GetTestDataForWriteToFile()
     {
         var current = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
-        yield return new object[] { "learn", new DateTime(current.Year, 1, 1), current };
-        yield return new object[] { "illuminate", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-1", new DateTime(current.Year, 1, 1), current };
+        yield return new object[] { "tenant-2", new DateTime(current.Year, 1, 1), current };
     }
 }

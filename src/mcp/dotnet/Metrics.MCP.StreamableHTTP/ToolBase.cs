@@ -53,7 +53,7 @@ public abstract class ToolBase
             {
                 Uri = fileName,
                 MimeType = "text/csv",
-                Blob = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(csv)),
+                Blob = System.Text.Encoding.UTF8.GetBytes(csv),
             }
         });
         return result;

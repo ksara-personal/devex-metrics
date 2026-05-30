@@ -117,8 +117,8 @@ authenticationBuilder.AddMcp(options =>
 {
     options.ResourceMetadata = new()
     {
-        Resource = new Uri(serverUrl),
-        ResourceDocumentation = new Uri("https://github.com/your-org/devmetrics/blob/main/README.md"),
+        Resource = serverUrl,
+        ResourceDocumentation = "https://github.com/your-org/devmetrics/blob/main/README.md",
         ScopesSupported = [
             "openid",
         ],
@@ -126,7 +126,7 @@ authenticationBuilder.AddMcp(options =>
 
     if (!string.IsNullOrWhiteSpace(authSettings.OktaAuthority))
     {
-        options.ResourceMetadata.AuthorizationServers.Add(new Uri(authSettings.OktaAuthority));
+        options.ResourceMetadata.AuthorizationServers.Add(authSettings.OktaAuthority);
     }
 });
 

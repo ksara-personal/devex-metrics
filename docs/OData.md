@@ -6,8 +6,8 @@ This document describes how to use the OData endpoints exposed by the MetricsSer
 
 The OData endpoints are available at: `{base_url}/{tenant}/odata`
 
-For example, if your service is running on `https://localhost:5001`, the OData base URL for the "learn" tenant would be:
-`https://localhost:5001/learn/odata/`
+For example, if your service is running on `https://localhost:5001`, the OData base URL for the "tenant-1" tenant would be:
+`https://localhost:5001/tenant-1/odata/`
 
 ## Available Entity Sets
 
@@ -17,7 +17,7 @@ The following entities are exposed as OData endpoints:
 - **Endpoint**: `/{tenant}/odata/PRMetricsEx`
 - **Description**: Pull request metrics including metadata, timelines, and related entities
 - **Relationships**: Includes Team, DevExMetrics, Contributors, ReviewerMetrics, and CopilotReviewMetrics
-- **Example**: `/learn/odata/PRMetricsEx`
+- **Example**: `/{tenant-id}/odata/PRMetricsEx`
 
 ### 2. CopilotReviewMetrics
 - **Endpoint**: `/{tenant}/odata/CopilotReviewMetrics`
@@ -25,37 +25,37 @@ The following entities are exposed as OData endpoints:
 - **Relationships**: Includes parent PRMetric
 - **Additional Methods**:
   - `GET /{tenant}/odata/CopilotReviewMetricsForAllTeams?start={date}&end={date}` - Get Copilot reviewer metrics for all teams within a date range
-- **Example**: `/learn/odata/CopilotReviewMetrics`
+- **Example**: `/{tenant-id}/odata/CopilotReviewMetrics`
 
 ### 3. Teams
 - **Endpoint**: `/{tenant}/odata/Teams`
 - **Description**: List of all teams with their metadata
 - **Query Support**: Full OData query support ($filter, $orderby, $select, etc.)
-- **Example**: `/learn/odata/Teams`
+- **Example**: `/{tenant-id}/odata/Teams`
 
 ### 4. Sprints
 - **Endpoint**: `/{tenant}/odata/Sprints`
 - **Description**: Sprint calendar information including release numbers, sprint numbers, and date ranges
 - **Query Support**: Full OData query support
-- **Example**: `/learn/odata/Sprints`
+- **Example**: `/{tenant-id}/odata/Sprints`
 
 ### 5. Contributors
 - **Endpoint**: `/{tenant}/odata/Contributors`
 - **Description**: Pull request contributors with their contribution statistics
 - **Query Support**: Full OData query support
-- **Example**: `/learn/odata/Contributors`
+- **Example**: `/{tenant-id}/odata/Contributors`
 
 ### 6. ReviewerSprintMetrics
 - **Endpoint**: `/{tenant}/odata/ReviewerSprintMetrics`
 - **Description**: Reviewer metrics aggregated by sprint
 - **Query Support**: Full OData query support
-- **Example**: `/learn/odata/ReviewerSprintMetrics`
+- **Example**: `/{tenant-id}/odata/ReviewerSprintMetrics`
 
 ### 7. ReviewerMonthlyMetrics
 - **Endpoint**: `/{tenant}/odata/ReviewerMonthlyMetrics`
 - **Description**: Reviewer metrics aggregated by month
 - **Query Support**: Full OData query support
-- **Example**: `/learn/odata/ReviewerMonthlyMetrics`
+- **Example**: `/{tenant-id}/odata/ReviewerMonthlyMetrics`
 
 ## Author Metrics Endpoints
 
@@ -72,7 +72,7 @@ The AuthorMetrics controller provides specialized endpoints for querying individ
   - `sprintNumber`: Sprint number (required)
 - **Example**: 
   ```
-  GET /learn/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=20
+  GET /{tenant-id}/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=20
   ```
 
 #### Get Author Metrics by Month
@@ -84,7 +84,7 @@ The AuthorMetrics controller provides specialized endpoints for querying individ
   - `month`: Month number 1-12 (required)
 - **Example**: 
   ```
-  GET /learn/odata/AuthorMetrics/Month?author=john.doe&year=2025&month=10
+  GET /{tenant-id}/odata/AuthorMetrics/Month?author=john.doe&year=2025&month=10
   ```
 
 ### Team Author Metrics
@@ -99,7 +99,7 @@ The AuthorMetrics controller provides specialized endpoints for querying individ
 - **OData Support**: Supports $filter, $orderby, $top, $skip, $select
 - **Example**: 
   ```
-  GET /learn/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20&$orderby=PrsAuthored desc
+  GET /{tenant-id}/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20&$orderby=PrsAuthored desc
   ```
 
 #### Get Team Author Metrics by Month
@@ -112,7 +112,7 @@ The AuthorMetrics controller provides specialized endpoints for querying individ
 - **OData Support**: Supports $filter, $orderby, $top, $skip, $select
 - **Example**: 
   ```
-  GET /learn/odata/TeamAuthorMetrics/Month?team=Helios&year=2025&month=10&$top=10
+  GET /{tenant-id}/odata/TeamAuthorMetrics/Month?team=Helios&year=2025&month=10&$top=10
   ```
 
 ## OData Query Examples
@@ -121,177 +121,177 @@ The AuthorMetrics controller provides specialized endpoints for querying individ
 
 #### Get all PR metrics:
 ```
-GET /learn/odata/PRMetricsEx
+GET /{tenant-id}/odata/PRMetricsEx
 ```
 
 #### Get specific PR metric by ID:
 ```
-GET /learn/odata/PRMetricsEx(123)
+GET /{tenant-id}/odata/PRMetricsEx(123)
 ```
 
 #### Get specific PR metric by team:
 ```
-GET /learn/odata/PRMetricsEx(Oxygen)
+GET /{tenant-id}/odata/PRMetricsEx(Oxygen)
 ```
 
 #### Get all teams:
 ```
-GET /learn/odata/Teams
+GET /{tenant-id}/odata/Teams
 ```
 
 ### Filtering ($filter)
 
 #### Get PRs for a specific repository:
 ```
-GET /learn/odata/PRMetricsEx?$filter=Repository eq 'learn'
+GET /{tenant-id}/odata/PRMetricsEx?$filter=Repository eq 'your-github-org/repo-1'
 ```
 
 #### Get PRs created after a specific date:
 ```
-GET /learn/odata/PRMetricsEx?$filter=CreatedAt gt 2024-01-01T00:00:00Z
+GET /{tenant-id}/odata/PRMetricsEx?$filter=CreatedAt gt 2024-01-01T00:00:00Z
 ```
 
 #### Get PRs by author:
 ```
-GET /learn/odata/PRMetricsEx?$filter=Author eq 'john.doe'
+GET /{tenant-id}/odata/PRMetricsEx?$filter=Author eq 'john.doe'
 ```
 
 #### Get merged PRs:
 ```
-GET /learn/odata/PRMetricsEx?$filter=State eq 'merged'
+GET /{tenant-id}/odata/PRMetricsEx?$filter=State eq 'merged'
 ```
 
 #### Get PRs with more than 10 comments:
 ```
-GET /learn/odata/PRMetricsEx?$filter=TotalComments gt 10
+GET /{tenant-id}/odata/PRMetricsEx?$filter=TotalComments gt 10
 ```
 
 #### Complex filter with multiple conditions:
 ```
-GET /learn/odata/PRMetricsEx?$filter=Repository eq 'learn' and State eq 'merged' and CreatedAt gt 2024-01-01T00:00:00Z
+GET /{tenant-id}/odata/PRMetricsEx?$filter=Repository eq 'your-github-org/repo-1' and State eq 'merged' and CreatedAt gt 2024-01-01T00:00:00Z
 ```
 
 ### Selecting Specific Fields ($select)
 
 #### Get only specific fields:
 ```
-GET /learn/odata/PRMetricsEx?$select=PrNumber,Author,Repository,CreatedAt,State
+GET /{tenant-id}/odata/PRMetricsEx?$select=PrNumber,Author,Repository,CreatedAt,State
 ```
 
 ### Sorting ($orderby)
 
 #### Sort by creation date (newest first):
 ```
-GET /learn/odata/PRMetricsEx?$orderby=CreatedAt desc
+GET /{tenant-id}/odata/PRMetricsEx?$orderby=CreatedAt desc
 ```
 
 #### Sort by multiple fields:
 ```
-GET /learn/odata/PRMetricsEx?$orderby=Repository,CreatedAt desc
+GET /{tenant-id}/odata/PRMetricsEx?$orderby=Repository,CreatedAt desc
 ```
 
 ### Expanding Related Data ($expand)
 
 #### Get PR metrics with team information:
 ```
-GET /learn/odata/PRMetricsEx?$expand=Team
+GET /{tenant-id}/odata/PRMetricsEx?$expand=Team
 ```
 
 #### Get PR metrics with all related data:
 ```
-GET /learn/odata/PRMetricsEx?$expand=Team,Contributors,ReviewerMetrics($expand=PRReviewer),CopilotReviewMetrics
+GET /{tenant-id}/odata/PRMetricsEx?$expand=Team,Contributors,ReviewerMetrics($expand=PRReviewer),CopilotReviewMetrics
 ```
 
 #### Get team with their metrics:
 ```
-GET /learn/odata/Teams?$expand=Metrics
+GET /{tenant-id}/odata/Teams?$expand=Metrics
 ```
 
 ### Pagination ($top, $skip)
 
 #### Get first 50 records:
 ```
-GET /learn/odata/PRMetrics?$top=50
+GET /{tenant-id}/odata/PRMetrics?$top=50
 ```
 
 #### Get records 51-100 (pagination):
 ```
-GET /learn/odata/PRMetrics?$top=50&$skip=50
+GET /{tenant-id}/odata/PRMetrics?$top=50&$skip=50
 ```
 
 ### Counting Records ($count)
 
 #### Get total count of PR metrics:
 ```
-GET /learn/odata/PRMetrics/$count
+GET /{tenant-id}/odata/PRMetrics/$count
 ```
 
 #### Get count with filter:
 ```
-GET /learn/odata/PRMetrics/$count?$filter=State eq 'merged'
+GET /{tenant-id}/odata/PRMetrics/$count?$filter=State eq 'merged'
 ```
 
 #### Include count in response:
 ```
-GET /learn/odata/PRMetrics?$count=true&$top=10
+GET /{tenant-id}/odata/PRMetrics?$count=true&$top=10
 ```
 
 ### Complex Query Examples
 
 #### Get recent merged PRs with team and contributor info:
 ```
-GET /learn/odata/PRMetricsEx?$filter=State eq 'merged' and CreatedAt gt 2024-11-01T00:00:00Z&$expand=Team,Contributors&$orderby=CreatedAt desc&$top=20
+GET /{tenant-id}/odata/PRMetricsEx?$filter=State eq 'merged' and CreatedAt gt 2024-11-01T00:00:00Z&$expand=Team,Contributors&$orderby=CreatedAt desc&$top=20
 ```
 
 #### Get PR metrics for specific team:
 ```
-GET /learn/odata/PRMetricsEx?$filter=Team/Name eq 'Engineering'&$expand=Team
+GET /{tenant-id}/odata/PRMetricsEx?$filter=Team/Name eq 'Engineering'&$expand=Team
 ```
 
 #### Get reviewer metrics by sprint for a specific year:
 ```
-GET /learn/odata/ReviewerSprintMetrics?$filter=Year eq 2025&$orderby=SprintNumber desc
+GET /{tenant-id}/odata/ReviewerSprintMetrics?$filter=Year eq 2025&$orderby=SprintNumber desc
 ```
 
 #### Get reviewer monthly metrics for a specific repository:
 ```
-GET /learn/odata/ReviewerMonthlyMetrics?$filter=Repository eq 'your-github-org/repo-1' and Year eq 2025&$orderby=Month desc
+GET /{tenant-id}/odata/ReviewerMonthlyMetrics?$filter=Repository eq 'your-github-org/repo-1' and Year eq 2025&$orderby=Month desc
 ```
 
 #### Get top contributors by lines of code:
 ```
-GET /learn/odata/Contributors?$orderby=LOC desc&$top=10
+GET /{tenant-id}/odata/Contributors?$orderby=LOC desc&$top=10
 ```
 
 #### Get all sprints for a specific year:
 ```
-GET /learn/odata/Sprints?$filter=Year eq 2025&$orderby=SprintNumber
+GET /{tenant-id}/odata/Sprints?$filter=Year eq 2025&$orderby=SprintNumber
 ```
 
 #### Get teams by value stream:
 ```
-GET /learn/odata/Teams?$filter=ValueStream eq 'Platform'
+GET /{tenant-id}/odata/Teams?$filter=ValueStream eq 'Platform'
 ```
 
 #### Get Copilot review metrics with high file coverage:
 ```
-GET /learn/odata/CopilotReviewMetrics?$filter=FilesReviewed gt 5&$orderby=FilesReviewed desc
+GET /{tenant-id}/odata/CopilotReviewMetrics?$filter=FilesReviewed gt 5&$orderby=FilesReviewed desc
 ```
 
 #### Get team author metrics with filtering:
 ```
-GET /learn/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20&$filter=PrsAuthored gt 5&$orderby=AvgPRSize desc
+GET /{tenant-id}/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20&$filter=PrsAuthored gt 5&$orderby=AvgPRSize desc
 ```
 
 #### Get individual author metrics across multiple sprints:
 ```
-GET /learn/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=20
-GET /learn/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=21
+GET /{tenant-id}/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=20
+GET /{tenant-id}/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=21
 ```
 
 #### Get copilot metrics for all teams in a date range:
 ```
-GET /learn/odata/CopilotReviewMetricsForAllTeams?start=2025-09-24T00:00:00Z&end=2025-10-07T23:59:59Z
+GET /{tenant-id}/odata/CopilotReviewMetricsForAllTeams?start=2025-09-24T00:00:00Z&end=2025-10-07T23:59:59Z
 ```
 
 ## Advanced Features
@@ -302,13 +302,13 @@ OData supports custom functions and actions. These can be added to extend the AP
 ### Metadata
 Get the OData metadata document:
 ```
-GET /learn/odata/$metadata
+GET /{tenant-id}/odata/$metadata
 ```
 
 ### Service Document
 Get the service document:
 ```
-GET /learn/odata/
+GET /{tenant-id}/odata/
 ```
 
 ## Response Format
@@ -350,70 +350,70 @@ Error responses include details about what went wrong:
 ### Dashboard Data
 Get recent team metrics for a dashboard:
 ```
-GET /learn/odata/PRMetricsEx?$filter=CreatedAt gt 2024-11-01T00:00:00Z and Team/Name eq 'Platform'&$expand=Team&$select=PrNumber,Author,CreatedAt,TotalLines,TotalComments&$orderby=CreatedAt desc&$top=10
+GET /{tenant-id}/odata/PRMetricsEx?$filter=CreatedAt gt 2024-11-01T00:00:00Z and Team/Name eq 'Platform'&$expand=Team&$select=PrNumber,Author,CreatedAt,TotalLines,TotalComments&$orderby=CreatedAt desc&$top=10
 ```
 
 ### Report Generation
 Get comprehensive data for reporting:
 ```
-GET /learn/odata/PRMetricsEx?$filter=CreatedAt ge 2024-10-01T00:00:00Z and CreatedAt le 2024-10-31T00:00:00Z&$expand=Team,Contributors,ReviewerMetrics&$orderby=CreatedAt
+GET /{tenant-id}/odata/PRMetricsEx?$filter=CreatedAt ge 2024-10-01T00:00:00Z and CreatedAt le 2024-10-31T00:00:00Z&$expand=Team,Contributors,ReviewerMetrics&$orderby=CreatedAt
 ```
 
 ### Performance Analysis
 Analyze review performance by sprint:
 ```
-GET /learn/odata/ReviewerSprintMetrics?$filter=Year eq 2025 and SprintNumber eq 20&$orderby=PrsReviewed desc&$top=20
+GET /{tenant-id}/odata/ReviewerSprintMetrics?$filter=Year eq 2025 and SprintNumber eq 20&$orderby=PrsReviewed desc&$top=20
 ```
 
 Analyze review performance by month:
 ```
-GET /learn/odata/ReviewerMonthlyMetrics?$filter=Year eq 2025 and Month eq 10&$orderby=PrsReviewed desc
+GET /{tenant-id}/odata/ReviewerMonthlyMetrics?$filter=Year eq 2025 and Month eq 10&$orderby=PrsReviewed desc
 ```
 
 ### Author Productivity Tracking
 Get individual author metrics for a sprint:
 ```
-GET /learn/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=20
+GET /{tenant-id}/odata/AuthorMetrics/Sprint?author=john.doe&year=2025&sprintNumber=20
 ```
 
 Get team productivity metrics for a month:
 ```
-GET /learn/odata/TeamAuthorMetrics/Month?team=Helios&year=2025&month=10&$orderby=PrsAuthored desc
+GET /{tenant-id}/odata/TeamAuthorMetrics/Month?team=Helios&year=2025&month=10&$orderby=PrsAuthored desc
 ```
 
 ### Sprint Planning
 Get sprint information to align metrics:
 ```
-GET /learn/odata/Sprints?$filter=Year eq 2025&$orderby=SprintNumber
+GET /{tenant-id}/odata/Sprints?$filter=Year eq 2025&$orderby=SprintNumber
 ```
 
 Get team author metrics for sprint retrospective:
 ```
-GET /learn/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20&$select=Author,PrsAuthored,AvgPRSize,AvgCycleTime,ApprovalRate
+GET /{tenant-id}/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20&$select=Author,PrsAuthored,AvgPRSize,AvgCycleTime,ApprovalRate
 ```
 
 ### Copilot Usage Analysis
 Get Copilot review metrics for all teams:
 ```
-GET /learn/odata/CopilotReviewMetricsForAllTeams?start=2025-09-01T00:00:00Z&end=2025-09-30T23:59:59Z
+GET /{tenant-id}/odata/CopilotReviewMetricsForAllTeams?start=2025-09-01T00:00:00Z&end=2025-09-30T23:59:59Z
 ```
 
 Get Copilot metrics with PR details:
 ```
-GET /learn/odata/CopilotReviewMetrics?$filter=FilesReviewed gt 0&$expand=PRMetric&$orderby=Comments desc
+GET /{tenant-id}/odata/CopilotReviewMetrics?$filter=FilesReviewed gt 0&$expand=PRMetric&$orderby=Comments desc
 ```
 
 ### Team Comparison
 Compare multiple teams' author metrics:
 ```
-GET /learn/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20
-GET /learn/odata/TeamAuthorMetrics/Sprint?team=Radon&year=2025&sprintNumber=20
+GET /{tenant-id}/odata/TeamAuthorMetrics/Sprint?team=Helios&year=2025&sprintNumber=20
+GET /{tenant-id}/odata/TeamAuthorMetrics/Sprint?team=Radon&year=2025&sprintNumber=20
 ```
 
 ### Contributor Analysis
 Get top contributors across the organization:
 ```
-GET /learn/odata/Contributors?$orderby=LOC desc&$top=50&$select=Author,LOC,CommitCount,PRCount
+GET /{tenant-id}/odata/Contributors?$orderby=LOC desc&$top=50&$select=Author,LOC,CommitCount,PRCount
 ```
 
 This OData implementation provides a powerful, flexible way to query your metrics data using standard OData conventions.
@@ -441,7 +441,7 @@ To import PR metrics data with team and copilot information:
 
 ```m
 let
-    Tenant = "learn",
+    Tenant = "tenant-1",
     BaseUrl = "https://your-devexmetrics-server/" & Tenant & "/odata/PRMetricsEx",
 
     PageSize = 1000, 
@@ -506,7 +506,7 @@ To import sprint information:
 
 ```m
 let
-    Tenant = "learn",
+    Tenant = "tenant-1",
     Source = Web.Contents("http://localhost:5100/" & Tenant & "/odata/Sprints", [
         Headers = [
             Accept = "application/json;odata.metadata=minimal"
@@ -532,7 +532,7 @@ To import team information:
 
 ```m
 let
-    Tenant = "learn",
+    Tenant = "tenant-1",
     Source = Web.Contents("http://localhost:5100/" & Tenant & "/odata/Teams", [
         Headers = [
             Accept = "application/json;odata.metadata=minimal"
@@ -558,7 +558,7 @@ To import reviewer metrics aggregated by sprint:
 
 ```m
 let
-    Tenant = "learn",
+    Tenant = "tenant-1",
     BaseUrl = "http://localhost:5100/" & Tenant & "/odata/ReviewerSprintMetrics",
     PageSize = 1000,
 
@@ -605,7 +605,7 @@ To import team author metrics for specific sprints:
 
 ```m
 let
-    Tenant = "learn",
+    Tenant = "tenant-1",
     Team = "Helios",
     Year = 2025,
     SprintNumber = 20,

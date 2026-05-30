@@ -11,7 +11,7 @@ public class ADOSynchronizerTests : ADOTestBase
     }
 
     [Theory]
-    [InlineData("learn", @"SELECT
+    [InlineData("tenant-1", @"SELECT
     [System.Id],
     [System.Title],
     [System.AssignedTo],
@@ -20,7 +20,7 @@ FROM workitems WHERE
     [Microsoft.VSTS.Common.ClosedDate] > '2025-09-28T00:00:00.0000000'
     AND [System.WorkItemType] = 'Epic'
     AND [System.State] = 'Closed'")]
-    [InlineData("illuminate", @"SELECT
+    [InlineData("tenant-2", @"SELECT
     [System.Id],
     [System.Title],
     [System.AssignedTo],
@@ -45,8 +45,8 @@ FROM workitems WHERE
     }
 
     [Theory]
-    [InlineData("learn")]
-    [InlineData("illuminate")]
+    [InlineData("tenant-1")]
+    [InlineData("tenant-2")]
     public async Task Test_Synchronizer_Write_Async(string tenantId)
     {
         SetTenant(tenantId);

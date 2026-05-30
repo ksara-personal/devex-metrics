@@ -18,8 +18,8 @@ public class SprintGenerationTests : TestBase
     /// Tests the GetSprintsList method.
     /// </summary>
     [Theory]
-    [InlineData("learn")]
-    [InlineData("illuminate")]
+    [InlineData("tenant-1")]
+    [InlineData("tenant-2")]
     public void GetSprintsList_ReturnsCorrectBoundaries(string tenantId)
     {
         SetTenant(tenantId);
@@ -43,9 +43,9 @@ public class SprintGenerationTests : TestBase
     /// </summary>
     /// <param name="releaseNumber"></param>
     [Theory]
-    [InlineData("learn", "3900.59.0")]
-    [InlineData("learn", "4000.0.0")]
-    [InlineData("learn", "4000.2.0")]
+    [InlineData("tenant-1", "3900.59.0")]
+    [InlineData("tenant-1", "4000.0.0")]
+    [InlineData("tenant-1", "4000.2.0")]
     public void GetSprints_By_Release(string tenantId, string releaseNumber)
     {
         SetTenant(tenantId);

@@ -1,4 +1,4 @@
-using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Metrics.MultiTenant;
 
 namespace Metrics.MCP.StreamableHTTP.Middleware;

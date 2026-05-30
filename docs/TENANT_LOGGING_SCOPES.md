@@ -63,7 +63,7 @@ info: AuthorMetricsController[0]
 ### After (with scopes):
 ```
 info: AuthorMetricsController[0]
-      => TenantId: learn, TenantName: Learn
+      => TenantId: tenant-1, TenantName: Tenant 1
       Error retrieving author metrics by sprint
 ```
 
@@ -162,12 +162,12 @@ static void SetTenantContext(IServiceProvider serviceProvider, string tenantId)
 To verify scopes are working, check that log output includes the scope information:
 ```bash
 # Should see tenant context in logs
-curl -H "X-Tenant-Id: learn" https://your-api.com/odata/Metrics
+curl -H "X-Tenant-Id: tenant-1" https://your-api.com/odata/Metrics
 ```
 
 Look for output like:
 ```
 info: MetricsController[0]
-      => TenantId: learn, TenantName: Learn
+      => TenantId: tenant-1, TenantName: Tenant 1
       Controller Action Starting: GET /odata/Metrics
 ```

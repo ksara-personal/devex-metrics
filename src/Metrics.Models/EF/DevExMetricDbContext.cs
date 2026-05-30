@@ -5,7 +5,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.EntityFrameworkCore;
+using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
 
 namespace Metrics.Models;
 

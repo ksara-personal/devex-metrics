@@ -18,7 +18,7 @@ namespace Metrics.Extensions.ADO.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.Sql(@"UPDATE workitem_sync_status SET tenant_id = 'learn' WHERE tenant_id IS NULL or tenant_id = ''");
+            migrationBuilder.Sql(@"UPDATE workitem_sync_status SET tenant_id = 'tenant-1' WHERE tenant_id IS NULL or tenant_id = ''");
         }
 
         /// <inheritdoc />
@@ -28,7 +28,7 @@ namespace Metrics.Extensions.ADO.Migrations
                 name: "tenant_id",
                 table: "workitem_sync_status");
             
-            migrationBuilder.Sql(@"UPDATE workitem_sync_status SET tenant_id = '' WHERE tenant_id = 'learn'");
+            migrationBuilder.Sql(@"UPDATE workitem_sync_status SET tenant_id = '' WHERE tenant_id = 'tenant-1'");
         }
     }
 }

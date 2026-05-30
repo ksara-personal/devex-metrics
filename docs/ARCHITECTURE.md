@@ -2,11 +2,11 @@
 
 ## Overview
 
-DevMetrics is a multi-tenant, cross-platform .NET 9.0 solution designed to extract, analyze, and report software engineering metrics from multiple source control platforms (GitHub, Azure DevOps). The system provides flexible querying capabilities through OData endpoints, MCP (Model Context Protocol) integration, and supports multiple database backends.
+DevMetrics is a multi-tenant, cross-platform .NET 10.0 solution designed to extract, analyze, and report software engineering metrics from multiple source control platforms (GitHub, Azure DevOps). The system provides flexible querying capabilities through OData endpoints, MCP (Model Context Protocol) integration, and supports multiple database backends.
 
 ## Architecture Principles
 
-- **Multi-Tenant**: Isolated data and configuration per tenant (e.g., Learn, Illuminate)
+- **Multi-Tenant**: Isolated data and configuration per tenant (e.g., Tenant 1, Tenant 2)
 - **Provider Pattern**: Extensible architecture supporting multiple source control systems
 - **Database Agnostic**: Support for SQLite and PostgreSQL with provider-specific migrations
 - **API First**: RESTful OData endpoints for flexible data access
@@ -356,7 +356,7 @@ graph LR
 ```mermaid
 graph TB
     subgraph "Request Flow"
-        Request[HTTP Request<br/>x-tenant-id: learn]
+        Request[HTTP Request<br/>x-tenant-id: tenant-1]
     end
     
     subgraph "Tenant Resolution"
@@ -375,8 +375,8 @@ graph TB
     end
     
     subgraph "Configuration"
-        LearnConfig[appsettings.learn.json<br/>Learn Product Config]
-        IlluminateConfig[appsettings.illuminate.json<br/>Illuminate Product Config]
+        Tenant1Config[appsettings.tenant-1.json<br/>Tenant 1 Config]
+        Tenant2Config[appsettings.tenant-2.json<br/>Tenant 2 Config]
         BaseConfig[appsettings.json<br/>Base Configuration]
     end
     
@@ -388,8 +388,8 @@ graph TB
     TenantDB --> Schema
     
     BaseConfig --> TenantStore
-    LearnConfig --> TenantStore
-    IlluminateConfig --> TenantStore
+    Tenant1Config --> TenantStore
+    Tenant2Config --> TenantStore
     
     style Request fill:#ffcdd2
     style TenantInfo fill:#c8e6c9
@@ -547,7 +547,7 @@ graph LR
 ## Technology Stack
 
 ### Core Framework
-- **.NET 9.0**: Latest LTS version with AOT support
+- **.NET 10.0**: Latest LTS version with AOT support
 - **C# 13**: Modern language features
 - **ASP.NET Core**: Web API and hosting
 
@@ -658,14 +658,14 @@ ConnectionStrings__Postgres="Host=localhost;Port=5432;Database=devmetrics;Userna
 
 **Product Selection**:
 ```bash
-PRODUCT="learn"  # or "illuminate"
+PRODUCT="tenant-1"  # or "tenant-2"
 ```
 
 ### Configuration Files
 
 - `appsettings.json`: Base configuration
-- `appsettings.learn.json`: Learn product overrides
-- `appsettings.illuminate.json`: Illuminate product overrides
+- `appsettings.tenant-1.json`: Tenant 1 overrides
+- `appsettings.tenant-2.json`: Tenant 2 overrides
 - `appsettings.kestrel.json`: Kestrel web server configuration
 
 ## Extension Points

@@ -150,7 +150,7 @@ public record HierarchyQueryRoot
 
 public record RouteValues
 {
-    public string project { get; set; } = "Learn";
+    public string project { get; set; } = "your-project";
     public string view { get; set; } = "query";
     public string id { get; set; } = "";
     public string controller { get; set; } = "ContributedPage";

@@ -104,7 +104,7 @@ Removes the last EF Core migration for different database providers and contexts
 
 ## Prerequisites
 
-- .NET 9.0 SDK or later
+- .NET 10.0 SDK or later
 - EF Core tools installed: `dotnet tool install --global dotnet-ef`
 - Proper database connection strings configured
 - For PostgreSQL: A running PostgreSQL instance (local or Docker)

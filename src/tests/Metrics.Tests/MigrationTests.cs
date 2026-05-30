@@ -17,12 +17,12 @@ public sealed class MigrationTests : TestBase
     /// <param name="migrationId"></param>
     /// <returns></returns>
     [Theory]
-    [InlineData("learn", "AddUpdatedAtCol")]
-    [InlineData("learn", "AddDevExMetricItem")]
-    [InlineData("learn", "RemoveMetricItem")]
-    [InlineData("learn", "ReviewerMetricChanges")]
-    [InlineData("illuminate", "AddUpdatedAtCol")]
-    [InlineData("illuminate", "AddDevExMetricItem")]
+    [InlineData("tenant-1", "AddUpdatedAtCol")]
+    [InlineData("tenant-1", "AddDevExMetricItem")]
+    [InlineData("tenant-1", "RemoveMetricItem")]
+    [InlineData("tenant-1", "ReviewerMetricChanges")]
+    [InlineData("tenant-2", "AddUpdatedAtCol")]
+    [InlineData("tenant-2", "AddDevExMetricItem")]
     public async Task Apply_Migrations_Async(string tenantId, string migrationId)
     {
         SetTenant(tenantId);

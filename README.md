@@ -1,6 +1,6 @@
 # DevMetrics
 
-DevMetrics is a cross-platform .NET 9.0 solution for extracting, analyzing, and reporting software engineering metrics from GitHub and Azure DevOps pull requests. It supports multi-tenant deployments, querying by team, author, value stream, sprint, and more, and can output results to JSON files, a database, or expose data through OData and MCP (Model Context Protocol) endpoints.
+DevMetrics is a cross-platform .NET 10.0 solution for extracting, analyzing, and reporting software engineering metrics from GitHub and Azure DevOps pull requests. It supports multi-tenant deployments, querying by team, author, value stream, sprint, and more, and can output results to JSON files, a database, or expose data through OData and MCP (Model Context Protocol) endpoints.
 
 ## Projects
 
@@ -253,7 +253,7 @@ The `Metrics.MCP.StreamableHTTP` project exposes a [Model Context Protocol](http
 2. Start a local Postgres instance (or use SQLite).
 3. From the `configs/` directory (where `appsettings.json` lives), run:
    ```bash
-   dotnet ../src/mcp/dotnet/Metrics.MCP.StreamableHTTP/bin/Debug/net9.0/Metrics.MCP.StreamableHTTP.dll
+   dotnet ../src/mcp/dotnet/Metrics.MCP.StreamableHTTP/bin/Debug/net10.0/Metrics.MCP.StreamableHTTP.dll
    ```
 4. To debug, attach your debugger to the running `dotnet` process.
 
