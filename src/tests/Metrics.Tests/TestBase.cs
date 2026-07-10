@@ -78,6 +78,7 @@ public abstract class TestBase
 
         var host = hostBuilder.ConfigureServices((context, services) =>
         {
+            services.AddRouting();
             services.AddDIServices(configurationBuilder);
             AddServices(services);
         })
