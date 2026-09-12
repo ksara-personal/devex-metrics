@@ -4,17 +4,38 @@ DevExMetrics is a cross-platform and multi tenant .NET 10.0 solution for extract
 
 ## Projects
 
-| Project | Description |
-|---|---|
-| `Metrics` | Core library — data models, sync services, sprint calendar, multi-tenant wiring |
-| `Metrics.Models` | Shared model types (PRMetrics, AuthorMetrics, ReviewerMetrics, etc.) |
-| `Metrics.GitHub` | GitHub provider — PR sync, reviewer metrics, Copilot review tracking, data migrations |
-| `Metrics.ADO` | Azure DevOps provider — work item sync, epic metrics, feature flag tracking |
-| `MetricsConsoleApp` | CLI for querying and syncing metrics |
-| `Metrics.MCP.StreamableHTTP` | MCP server (Streamable HTTP), OData endpoints, background scheduler |
-| `Metrics.GitHub.Migrations.*` | EF Core migrations for GitHub metrics (SQLite and PostgreSQL) |
-| `Metrics.ADO.Migrations.*` | EF Core migrations for ADO metrics (SQLite and PostgreSQL) |
-| `Metrics.Tests` | Unit and integration tests |
+The solution follows clean architecture: dependencies point inwards, from the hosts through
+the adapters to the application use cases and finally the domain. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the layer rules.
+
+```
+src/
+  Core/
+    Metrics.Domain              entities, value objects, domain contracts
+    Metrics.Application         use cases and the ports they depend on
+  Infrastructure/
+    Metrics.Infrastructure      EF Core, stores, HTTP, multi-tenancy, DI composition
+    Metrics.GitHub              GitHub adapter (runtime-loaded extension)
+    Metrics.ADO                 Azure DevOps adapter (runtime-loaded extension)
+    Migrations/                 EF Core migrations per provider and database
+  Presentation/
+    Metrics.MCP.StreamableHTTP  MCP server, OData endpoints, background scheduler
+    MetricsConsoleApp           CLI for querying and syncing metrics
+tests/
+  Metrics.Tests                 application and persistence tests
+  Metrics.ADO.Tests             Azure DevOps adapter tests
+  Metrics.ArchitectureTests     enforces the layer dependency rules
+```
+
+| Layer | Project | May depend on |
+|---|---|---|
+| Domain | `Metrics.Domain` | nothing (BCL plus the `[MultiTenant]` marker attribute) |
+| Application | `Metrics.Application` | Domain, `Microsoft.Extensions.*.Abstractions` |
+| Infrastructure | `Metrics.Infrastructure`, `Metrics.GitHub`, `Metrics.ADO`, `Metrics.*.Migrations.*` | Domain, Application |
+| Presentation | `Metrics.MCP.StreamableHTTP`, `MetricsConsoleApp` | every layer |
+
+Package versions are managed centrally in `Directory.Packages.props`; shared build settings
+live in `Directory.Build.props`.
 
 ## Supported Providers
 
@@ -151,7 +172,7 @@ See [TENANT_ENVIRONMENT_VARIABLES.md](./docs/TENANT_ENVIRONMENT_VARIABLES.md) fo
 No server required. The database file is created automatically on first run.
 
 ```bash
-dotnet ef database update --context DevExMetricSqliteDbContext --project src/Metrics/Metrics.csproj
+dotnet ef database update --context DevExMetricSqliteDbContext --project src/Infrastructure/Metrics.Infrastructure/Metrics.Infrastructure.csproj
 ```
 
 ### PostgreSQL
@@ -164,7 +185,7 @@ docker compose -f local-postgresql/docker-compose.yml up -d
 Then apply migrations:
 
 ```bash
-dotnet ef database update --context DevExMetricPostgresDbContext --project src/Metrics/Metrics.csproj
+dotnet ef database update --context DevExMetricPostgresDbContext --project src/Infrastructure/Metrics.Infrastructure/Metrics.Infrastructure.csproj
 ```
 
 Update your tenant config (or env variable) with the connection string, e.g.:
@@ -193,7 +214,7 @@ Supported providers: `github-sqlite`, `github-postgres`, `ado-sqlite`, `ado-post
 
 ## CLI Usage
 
-Build and run from the `src/MetricsConsoleApp` directory:
+Build and run from the `src/Presentation/MetricsConsoleApp` directory:
 
 ```sh
 DOTNET_ENVIRONMENT=Release dotnet build

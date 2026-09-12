@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <MetricsLayer>infrastructure</MetricsLayer>
+    <RootNamespace>Metrics.GitHub.Migrations.Postgres</RootNamespace>
+  </PropertyGroup>
+
+  <!-- EF Core migrations only. The assembly name is referenced by
+       MigrationsAssembly(...) at runtime, so it must not be renamed. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Metrics.Infrastructure/Metrics.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyOutputToHost" AfterTargets="Build">
+    <ItemGroup>
+      <OutputFiles Include="$(OutputPath)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="../../../Presentation/Metrics.MCP.StreamableHTTP/bin/$(Configuration)/$(TargetFramework)" />
+  </Target>
+
+</Project>

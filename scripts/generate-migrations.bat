@@ -8,7 +8,7 @@ REM Example: generate-migrations.bat sqlite AddNewColumn
 set PROVIDER=%~1
 set MIGRATION_NAME=%~2
 set SCRIPT_DIR=%~dp0
-set SRC_DIR=%SCRIPT_DIR%..\src
+set SRC_DIR=%SCRIPT_DIR%..\src\Infrastructure
 
 if "%PROVIDER%"=="" goto :usage
 if "%MIGRATION_NAME%"=="" goto :usage
@@ -99,8 +99,8 @@ goto :done
 :done
 echo.
 echo 💡 To apply migrations:
-echo    For GitHub: set DataStoreType=^<SQLite^|Postgres^> ^&^& dotnet ef database update --project src\Metrics.Models
-echo    For ADO:    set DataStoreType=^<SQLite^|Postgres^> ^&^& dotnet ef database update --project src\Metrics.ADO
+echo    For GitHub: set DataStoreType=^<SQLite^|Postgres^> ^&^& dotnet ef database update --project src\Infrastructure\Metrics.Infrastructure
+echo    For ADO:    set DataStoreType=^<SQLite^|Postgres^> ^&^& dotnet ef database update --project src\Infrastructure\Metrics.ADO
 exit /b 0
 
 REM ==========================================================

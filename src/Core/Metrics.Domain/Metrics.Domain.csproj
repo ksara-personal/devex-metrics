@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <MetricsLayer>domain</MetricsLayer>
+    <RootNamespace>Metrics.Domain</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    Innermost layer: entities, value objects, enums and domain contracts.
+    It must not reference any other project. The only package allowed here is
+    Finbuckle.MultiTenant.Abstractions, which supplies the [MultiTenant] marker
+    attribute applied to tenant-scoped entities.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Finbuckle.MultiTenant.Abstractions" />
+  </ItemGroup>
+
+</Project>

@@ -7,7 +7,7 @@ REM Example: apply-migrations.bat postgres
 
 set PROVIDER=%~1
 set SCRIPT_DIR=%~dp0
-set SRC_DIR=%SCRIPT_DIR%..\src
+set SRC_DIR=%SCRIPT_DIR%..\src\Infrastructure
 
 if "%PROVIDER%"=="" (
     echo Usage: %~nx0 ^<provider^>

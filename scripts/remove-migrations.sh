@@ -8,7 +8,7 @@ set -e
 
 PROVIDER=$1
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SRC_DIR="$SCRIPT_DIR/../src"
+SRC_DIR="$SCRIPT_DIR/../src/Infrastructure"
 
 if [ -z "$PROVIDER" ]; then
     echo "Usage: $0 <provider>"

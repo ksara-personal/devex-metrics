@@ -9,7 +9,7 @@ set -e
 PROVIDER=$1
 MIGRATION_NAME=$2
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SRC_DIR="$SCRIPT_DIR/../src"
+SRC_DIR="$SCRIPT_DIR/../src/Infrastructure"
 
 if [ -z "$PROVIDER" ] || [ -z "$MIGRATION_NAME" ]; then
     echo "Usage: $0 <provider> <migration-name>"
@@ -123,5 +123,5 @@ esac
 
 echo ""
 echo "💡 To apply migrations:"
-echo "   For GitHub: export DataStoreType=<SQLite|Postgres> && dotnet ef database update --project src/Metrics.Models"
-echo "   For ADO:    export DataStoreType=<SQLite|Postgres> && dotnet ef database update --project src/Metrics.ADO"
+echo "   For GitHub: export DataStoreType=<SQLite|Postgres> && dotnet ef database update --project src/Infrastructure/Metrics.Infrastructure"
+echo "   For ADO:    export DataStoreType=<SQLite|Postgres> && dotnet ef database update --project src/Infrastructure/Metrics.ADO"
