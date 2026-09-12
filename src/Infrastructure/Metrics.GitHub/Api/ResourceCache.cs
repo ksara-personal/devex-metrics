@@ -35,16 +35,16 @@ public static class ResourceCache
     /// </summary>
     static readonly Dictionary<string, string> _cachedQueries = new(StringComparer.OrdinalIgnoreCase)
     {
-        [TeamMembersQuery] = ReadEmbeddedScript("Metrics.GitHub.Resources.TeamMembersQuery.txt"),
-        [SearchPRQuery] = ReadEmbeddedScript("Metrics.GitHub.Resources.SearchPRQuery.txt"),
-        [PRQuery] = ReadEmbeddedScript("Metrics.GitHub.Resources.PRQuery.txt"),
-        [PRQuery_Reviews] = ReadEmbeddedScript("Metrics.GitHub.Resources.PRQuery_Reviews.txt"),
-        [CurrentUser] = ReadEmbeddedScript("Metrics.GitHub.Resources.ViewerQuery.txt"),
-        [PRStateSearchQuery] = ReadEmbeddedScript("Metrics.GitHub.Resources.StateSearchQuery.txt"),
-        [Fragment_Comments] = ReadEmbeddedScript("Metrics.GitHub.Resources.Fragment_Comments.txt"),
-        [Fragment_Commits] = ReadEmbeddedScript("Metrics.GitHub.Resources.Fragment_Commits.txt"),
-        [Fragment_Reviews] = ReadEmbeddedScript("Metrics.GitHub.Resources.Fragment_Reviews.txt"),
-        [Fragment_TimelineItems] = ReadEmbeddedScript("Metrics.GitHub.Resources.Fragment_TimelineItems.txt")
+        [TeamMembersQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.TeamMembersQuery.txt"),
+        [SearchPRQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.SearchPRQuery.txt"),
+        [PRQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.PRQuery.txt"),
+        [PRQuery_Reviews] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.PRQuery_Reviews.txt"),
+        [CurrentUser] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.ViewerQuery.txt"),
+        [PRStateSearchQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.StateSearchQuery.txt"),
+        [Fragment_Comments] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_Comments.txt"),
+        [Fragment_Commits] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_Commits.txt"),
+        [Fragment_Reviews] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_Reviews.txt"),
+        [Fragment_TimelineItems] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_TimelineItems.txt")
     };
 
     public const string PRQuery = "PRQuery";

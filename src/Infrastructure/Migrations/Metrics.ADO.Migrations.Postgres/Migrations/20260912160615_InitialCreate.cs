@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -17,6 +18,7 @@ namespace Metrics.Extensions.ADO.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tenant_id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     migration_id = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     migration_type = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     applied_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
@@ -43,7 +45,8 @@ namespace Metrics.Extensions.ADO.Migrations
                     maturity_percentage = table.Column<float>(type: "real", nullable: false),
                     pr_cycle_time = table.Column<TimeSpan>(type: "interval", nullable: false),
                     created_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    closed_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    closed_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    tenant_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,7 +60,8 @@ namespace Metrics.Extensions.ADO.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     work_item_id = table.Column<int>(type: "integer", nullable: true),
-                    last_sync_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                    last_sync_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    tenant_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
