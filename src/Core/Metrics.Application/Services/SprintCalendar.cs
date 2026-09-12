@@ -136,11 +136,15 @@ public sealed class SprintCalendar
     /// <returns></returns>
     string GetReleaseNumber(int sprintNumber, int year, string previousReleaseName)
     {
-        foreach (var item in _settings.KnownSprintReleaseNames)
+        var knownSprintNames = _settings.KnownSprintReleaseNames;
+        if (knownSprintNames is not null)
         {
-            if (sprintNumber == item.SprintNumber && year == item.Year)
+            foreach (var item in knownSprintNames)
             {
-                return item.ReleaseName;
+                if (sprintNumber == item.SprintNumber && year == item.Year)
+                {
+                    return item.ReleaseName;
+                }
             }
         }
         
