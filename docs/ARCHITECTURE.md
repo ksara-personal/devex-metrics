@@ -6,112 +6,104 @@ DevMetrics is a multi-tenant, cross-platform .NET 10.0 solution designed to extr
 
 ## Architecture Principles
 
-- **Multi-Tenant**: Isolated data and configuration per tenant (e.g., Tenant 1, Tenant 2)
-- **Provider Pattern**: Extensible architecture supporting multiple source control systems
-- **Database Agnostic**: Support for SQLite and PostgreSQL with provider-specific migrations
-- **API First**: RESTful OData endpoints for flexible data access
-- **Background Processing**: Scheduled metric collection and synchronization
-- **Cloud Native**: OAuth 2.0 authentication, containerization support, cloud database integration
+The solution is organised as a clean architecture. **Dependencies point inwards only**: hosts
+depend on adapters, adapters depend on use cases, use cases depend on the domain, and the
+domain depends on nothing. Anything the inner layers need from the outside world is expressed
+as a *port* (an interface declared inwards) and satisfied by an *adapter* (an implementation
+supplied outwards).
 
-## High-Level Architecture
+Alongside that:
+
+- **Multi-Tenant**: isolated data and configuration per tenant, reached through the
+  `ITenantSettingsProvider` port rather than a concrete tenant store
+- **Provider Pattern**: GitHub and Azure DevOps plug in as runtime-loaded extensions
+- **Database Agnostic**: SQLite and PostgreSQL with provider-specific migration assemblies
+- **API First**: OData endpoints and MCP tools over the same application services
+- **Background Processing**: scheduled collection driven by an infrastructure hosted service
+- **Cloud Native**: OAuth 2.0, containerisation, cloud database support
+
+### Layers
+
+| Layer | Projects | Allowed dependencies |
+|---|---|---|
+| Domain | `src/Core/Metrics.Domain` | BCL only, plus the `[MultiTenant]` marker attribute |
+| Application | `src/Core/Metrics.Application` | Domain and `Microsoft.Extensions.*.Abstractions` |
+| Infrastructure | `src/Infrastructure/Metrics.Infrastructure`, `Metrics.GitHub`, `Metrics.ADO`, `Migrations/*` | Domain, Application, any package |
+| Presentation | `src/Presentation/Metrics.MCP.StreamableHTTP`, `MetricsConsoleApp` | every layer |
+
+Each project declares its layer through the `MetricsLayer` MSBuild property, and
+`tests/Metrics.ArchitectureTests` fails the build when a project reference or package
+reference breaks the rule above.
 
 ```mermaid
-graph TB
-    subgraph "Client Layer"
-        VSCode[VS Code Copilot]
-        PowerBI[Power BI / Excel]
-        API_Client[API Clients]
+graph RL
+    subgraph Presentation
+        Host[Metrics.MCP.StreamableHTTP]
+        Cli[MetricsConsoleApp]
+    end
+    subgraph Infrastructure
+        Infra[Metrics.Infrastructure<br/>EF Core, stores, HTTP, tenancy, DI]
+        GitHub[Metrics.GitHub]
+        ADO[Metrics.ADO]
+        Migrations[Migrations.*]
+    end
+    subgraph Core
+        App[Metrics.Application<br/>use cases and ports]
+        Domain[Metrics.Domain<br/>entities and contracts]
     end
 
-    subgraph "API Layer"
-        MCP[MCP Server<br/>Metrics.MCP.StreamableHTTP]
-        Auth[Authentication<br/>OAuth / API Key]
-        OData[OData Endpoints<br/>/tenant/odata/*]
-        MCP_Tools[MCP Tools<br/>Metrics/Author/Reviewer/Sprint]
-    end
+    Host --> Infra
+    Host --> GitHub
+    Host --> ADO
+    Cli --> Infra
+    GitHub --> Infra
+    ADO --> Infra
+    Migrations --> Infra
+    Infra --> App
+    App --> Domain
 
-    subgraph "Service Layer"
-        Scheduler[Background Scheduler<br/>MetricsSchedulerService]
-        Sync[Data Synchronizer<br/>DataSyncService]
-        Export[Export Service<br/>MetricsExportService]
-    end
-
-    subgraph "Provider Layer"
-        GitHub[GitHub Provider<br/>Metrics.GitHub]
-        ADO[ADO Provider<br/>Metrics.ADO]
-        IProvider[IMetricsExtensionProvider<br/>Extension Interface]
-    end
-
-    subgraph "Core Layer"
-        Core[Core Library<br/>Metrics]
-        Models[Domain Models<br/>Metrics.Models]
-        MultiTenant[Multi-Tenant<br/>Configuration]
-    end
-
-    subgraph "Data Layer"
-        EF[Entity Framework Core]
-        SQLite[(SQLite)]
-        Postgres[(PostgreSQL)]
-        Migrations[Database Migrations<br/>Provider-Specific]
-    end
-
-    subgraph "External Systems"
-        GH_API[GitHub API]
-        ADO_API[Azure DevOps API]
-    end
-
-    VSCode --> MCP
-    PowerBI --> OData
-    API_Client --> OData
-    
-    MCP --> Auth
-    Auth --> OData
-    Auth --> MCP_Tools
-    
-    OData --> Core
-    MCP_Tools --> Core
-    
-    MCP --> Scheduler
-    Scheduler --> Sync
-    Sync --> Export
-    
-    Sync --> IProvider
-    IProvider --> GitHub
-    IProvider --> ADO
-    
-    GitHub --> GH_API
-    ADO --> ADO_API
-    
-    Core --> Models
-    Core --> MultiTenant
-    GitHub --> Core
-    ADO --> Core
-    
-    Core --> EF
-    EF --> Migrations
-    Migrations --> SQLite
-    Migrations --> Postgres
-    
-    style MCP fill:#e1f5ff
-    style GitHub fill:#fff3e0
-    style ADO fill:#fff3e0
-    style OData fill:#e8f5e9
-    style EF fill:#f3e5f5
+    style Domain fill:#c8e6c9
+    style App fill:#dcedc8
+    style Infra fill:#e1f5ff
+    style Host fill:#fff9c4
 ```
+
+### Ports and adapters
+
+| Port (Application) | Adapter (Infrastructure) | Purpose |
+|---|---|---|
+| `IMetricsPersistenceService` | `MetricsPersistenceService<TContext>`, `FilePersistenceService`, `DefaultPersistenceService` | storage-agnostic metric persistence |
+| `ITenantSettingsProvider` | `TenantConfigurationService` | per-tenant configuration without knowing how tenants resolve |
+| `IOrganizationApiClient` | `ApiClient` and its provider subclasses | source-control API calls used by team resolution |
+| `IMetricsExtensionProvider`, `IServiceConfigurator`, `IODataConfigurator` | `GitHubExtensionProvider`, `ADOMetricsExtensionProvider` | provider registration and OData model contribution |
+| `IMetricsScheduler` | `GitHubMetricsScheduler`, `ADOMetricsScheduler` | scheduled collection per provider |
+
+Two contracts deliberately stay in the infrastructure layer because they expose Entity
+Framework types: `IDbContextMetricsPersistenceService`, for callers that compose queries
+directly against the EF model, and `IDataMigration<TContext>`, for data migrations.
+
+### Accepted compromises
+
+- Domain entities carry persistence annotations (`[Table]`, `[Column]`, `[MultiTenant]`)
+  rather than separate `IEntityTypeConfiguration` classes. Moving the mapping out would risk
+  silently changing the generated schema, so the annotations stay and the domain project
+  references no database provider.
+- `IODataConfigurator` lives in the application layer and pulls in
+  `Microsoft.OData.ModelBuilder` (the EDM builder, not ASP.NET Core), because provider
+  extensions contribute to the OData model and the host is the only thing that hosts it.
 
 ## Component Architecture
 
 ### 1. Core Components
 
-#### Metrics (Core Library)
-- **Purpose**: Foundation library providing shared services and infrastructure
+#### Metrics.Application (use cases and ports)
+- **Purpose**: Orchestrates the work the system does, and declares the ports it needs
 - **Key Responsibilities**:
   - Data synchronization orchestration
-  - API client abstraction
   - Metrics calculation and analysis
-  - Multi-tenant configuration management
-  - User membership services
   - Sprint calendar management
+  - User membership and team resolution
+  - Port definitions for persistence, tenant settings and source-control APIs
 
 **Key Classes**:
 - `DataSyncService`: Orchestrates data synchronization across providers
@@ -121,8 +113,8 @@ graph TB
 - `ConfigService`: Configuration management
 - `SprintCalendar`: Sprint/release date calculations
 
-#### Metrics.Models
-- **Purpose**: Domain models and data transfer objects
+#### Metrics.Domain
+- **Purpose**: Entities, settings records and domain contracts, free of infrastructure
 - **Key Entities**:
   - `PRMetricsEx`: Extended PR metrics model
   - `DevExMetric`: Developer experience metrics
@@ -183,6 +175,16 @@ classDiagram
     PRMetricsEx "1" --> "*" ReviewerMetric
     PRMetricsEx "1" --> "0..1" CopilotReviewMetric
 ```
+
+#### Metrics.Infrastructure (adapters)
+- **Purpose**: Implements the application ports and owns every framework dependency
+- **Key Responsibilities**:
+  - EF Core contexts and persistence services (`Persistence/`)
+  - File and API backed stores (`Persistence/`)
+  - HTTP client base and retry policies (`Http/`)
+  - Tenant resolution and configuration layering (`MultiTenant/`)
+  - Background scheduling (`Scheduling/`)
+  - DI composition root, `AddDIServices` (`DependencyInjection/`)
 
 ### 2. Provider Pattern
 
@@ -672,8 +674,8 @@ PRODUCT="tenant-1"  # or "tenant-2"
 
 ### Adding a New Provider
 
-1. **Create Provider Project**: `Metrics.NewProvider`
-2. **Implement Interface**: `IMetricsExtensionProvider`
+1. **Create Provider Project**: `src/Infrastructure/Metrics.NewProvider`
+2. **Implement Interface**: `IMetricsExtensionProvider` (declared in `Metrics.Application`)
 3. **Create API Client**: Provider-specific API integration
 4. **Implement Synchronizer**: Data collection logic
 5. **Add Scheduler**: Background collection service
@@ -683,7 +685,7 @@ PRODUCT="tenant-1"  # or "tenant-2"
 
 ### Adding New Metrics
 
-1. **Update Models**: Add properties to `PRMetricsEx` or create new model
+1. **Update Domain**: Add properties to `PRMetricsEx` in `Metrics.Domain`, or add a new entity
 2. **Update Analyzer**: Add calculation logic in `PRAnalyzer`
 3. **Update Migrations**: Generate and apply database migrations
 4. **Update OData**: Configure EDM model if needed

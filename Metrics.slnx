@@ -4,19 +4,35 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Folder Name="/Migrations/">
-    <Project Path="src/Migrations/Metrics.ADO.Migrations.Postgres/Metrics.ADO.Migrations.Postgres.csproj" />
-    <Project Path="src/Migrations/Metrics.ADO.Migrations.Sqlite/Metrics.ADO.Migrations.Sqlite.csproj" />
-    <Project Path="src/Migrations/Metrics.GitHub.Migrations.Postgres/Metrics.GitHub.Migrations.Postgres.csproj" />
-    <Project Path="src/Migrations/Metrics.GitHub.Migrations.Sqlite/Metrics.GitHub.Migrations.Sqlite.csproj" />
+  <Folder Name="/Core/">
+    <Project Path="src/Core/Metrics.Domain/Metrics.Domain.csproj" />
+    <Project Path="src/Core/Metrics.Application/Metrics.Application.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="src/Infrastructure/Metrics.Infrastructure/Metrics.Infrastructure.csproj" />
+    <Project Path="src/Infrastructure/Metrics.GitHub/Metrics.GitHub.csproj" />
+    <Project Path="src/Infrastructure/Metrics.ADO/Metrics.ADO.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/Migrations/">
+    <Project Path="src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Sqlite/Metrics.GitHub.Migrations.Sqlite.csproj" />
+    <Project Path="src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Postgres/Metrics.GitHub.Migrations.Postgres.csproj" />
+    <Project Path="src/Infrastructure/Migrations/Metrics.ADO.Migrations.Sqlite/Metrics.ADO.Migrations.Sqlite.csproj" />
+    <Project Path="src/Infrastructure/Migrations/Metrics.ADO.Migrations.Postgres/Metrics.ADO.Migrations.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="src/Presentation/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" />
+    <Project Path="src/Presentation/MetricsConsoleApp/MetricsConsoleApp.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="src/tests/Metrics.Extensions.ADO.Tests/Metrics.Extensions.ADO.Tests.csproj" />
-    <Project Path="src/tests/Metrics.Tests/Metrics.Tests.csproj" />
+    <Project Path="tests/Metrics.Tests/Metrics.Tests.csproj" />
+    <Project Path="tests/Metrics.ADO.Tests/Metrics.ADO.Tests.csproj" />
+    <Project Path="tests/Metrics.ArchitectureTests/Metrics.ArchitectureTests.csproj" />
   </Folder>
-  <Project Path="src/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" />
-  <Project Path="src/Metrics.ADO/Metrics.ADO.csproj" />
-  <Project Path="src/Metrics.GitHub/Metrics.GitHub.csproj" />
-  <Project Path="src/Metrics.Models/Metrics.Models.csproj" />
-  <Project Path="src/Metrics/Metrics.csproj" />
+  <Folder Name="/solution items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Dockerfile" />
+    <File Path="README.md" />
+    <File Path="docs/ARCHITECTURE.md" />
+  </Folder>
 </Solution>

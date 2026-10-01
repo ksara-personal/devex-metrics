@@ -1,0 +1,33 @@
+<Project>
+
+  <!-- Shared build settings for every project in the solution. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <EnableDefaultItems>true</EnableDefaultItems>
+  </PropertyGroup>
+
+  <!--
+    Layer marker. Each project sets $(MetricsLayer) so the architecture rules are
+    visible from the project file itself:
+      domain         -> entities and domain contracts, no infrastructure
+      application    -> use cases and ports, Domain + Microsoft.Extensions.*.Abstractions only
+      infrastructure -> adapters that implement the Application ports
+      presentation   -> hosts (HTTP API, CLI)
+      test           -> test projects
+  -->
+  <PropertyGroup Condition="'$(MetricsLayer)' == ''">
+    <MetricsLayer>unspecified</MetricsLayer>
+  </PropertyGroup>
+
+  <!-- Config files shared by every runnable host and test project. -->
+  <ItemGroup Condition="'$(IncludeAppConfigs)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)configs/appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)configs/appsettings.tenant-1.json" Link="appsettings.tenant-1.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)configs/appsettings.tenant-2.json" Link="appsettings.tenant-2.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

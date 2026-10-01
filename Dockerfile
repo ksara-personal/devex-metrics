@@ -2,68 +2,49 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
-# Copy csproj and restore as distinct layers
-COPY src/Metrics.Models/*.csproj ./src/Metrics.Models/
-COPY src/Metrics/*.csproj ./src/Metrics/
-COPY src/Metrics.ADO/*.csproj ./src/Metrics.ADO/
-COPY src/Metrics.GitHub/*.csproj ./src/Metrics.GitHub/
-# copy migrations projects
-COPY src/Migrations/Metrics.ADO.Migrations.Postgres/*.csproj ./src/Migrations/Metrics.ADO.Migrations.Postgres/
-COPY src/Migrations/Metrics.ADO.Migrations.Sqlite/*.csproj ./src/Migrations/Metrics.ADO.Migrations.Sqlite/
-COPY src/Migrations/Metrics.GitHub.Migrations.Postgres/*.csproj ./src/Migrations/Metrics.GitHub.Migrations.Postgres/
-COPY src/Migrations/Metrics.GitHub.Migrations.Sqlite/*.csproj ./src/Migrations/Metrics.GitHub.Migrations.Sqlite/
+# Copy the solution-wide build configuration and every project file first, so that
+# restore is cached independently of the source.
+COPY Directory.Build.props Directory.Packages.props Metrics.slnx ./
+COPY src/Core/Metrics.Domain/*.csproj                                       ./src/Core/Metrics.Domain/
+COPY src/Core/Metrics.Application/*.csproj                                  ./src/Core/Metrics.Application/
+COPY src/Infrastructure/Metrics.Infrastructure/*.csproj                     ./src/Infrastructure/Metrics.Infrastructure/
+COPY src/Infrastructure/Metrics.GitHub/*.csproj                             ./src/Infrastructure/Metrics.GitHub/
+COPY src/Infrastructure/Metrics.ADO/*.csproj                                ./src/Infrastructure/Metrics.ADO/
+COPY src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Sqlite/*.csproj   ./src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Sqlite/
+COPY src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Postgres/*.csproj ./src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Postgres/
+COPY src/Infrastructure/Migrations/Metrics.ADO.Migrations.Sqlite/*.csproj      ./src/Infrastructure/Migrations/Metrics.ADO.Migrations.Sqlite/
+COPY src/Infrastructure/Migrations/Metrics.ADO.Migrations.Postgres/*.csproj    ./src/Infrastructure/Migrations/Metrics.ADO.Migrations.Postgres/
+COPY src/Presentation/Metrics.MCP.StreamableHTTP/*.csproj                   ./src/Presentation/Metrics.MCP.StreamableHTTP/
+COPY src/Presentation/MetricsConsoleApp/*.csproj                            ./src/Presentation/MetricsConsoleApp/
+COPY tests/Metrics.Tests/*.csproj                                           ./tests/Metrics.Tests/
+COPY tests/Metrics.ADO.Tests/*.csproj                                       ./tests/Metrics.ADO.Tests/
+RUN dotnet restore src/Presentation/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj
 
-COPY src/mcp/dotnet/Metrics.MCP.StreamableHTTP/*.csproj ./src/mcp/dotnet/Metrics.MCP.StreamableHTTP/
-WORKDIR /app/src/mcp/dotnet/Metrics.MCP.StreamableHTTP
-RUN dotnet restore
-
-# Copy everything else and build
-WORKDIR /app
+# Copy everything else and publish.
 COPY . .
 
-WORKDIR /app/src/Metrics.Models
-RUN dotnet publish -c Release -o out
-
-# Publish Metrics.ADO project
-WORKDIR /app/src/Metrics.ADO
-RUN dotnet publish -c Release -o out
-
-# Publish Metrics.GitHub project
-WORKDIR /app/src/Metrics.GitHub
-RUN dotnet publish -c Release -o out
-
-# Publish Metrics Migrations projects
-WORKDIR /app/src/Migrations/Metrics.GitHub.Migrations.Sqlite
-RUN dotnet publish -c Release -o out
-
-WORKDIR /app/src/Migrations/Metrics.GitHub.Migrations.Postgres
-RUN dotnet publish -c Release -o out
-
-WORKDIR /app/src/Migrations/Metrics.ADO.Migrations.Sqlite
-RUN dotnet publish -c Release -o out
-
-WORKDIR /app/src/Migrations/Metrics.ADO.Migrations.Postgres
-RUN dotnet publish -c Release -o out
-
-# Publish Metrics.MCP.StreamableHTTP project (the main entry point)
-WORKDIR /app/src/mcp/dotnet/Metrics.MCP.StreamableHTTP
-RUN dotnet publish -c Release -o out
+# The extension assemblies and the migration assemblies are loaded by file name at
+# runtime, so each one is published separately and the outputs are overlaid below.
+RUN dotnet publish src/Infrastructure/Metrics.ADO/Metrics.ADO.csproj                                      -c Release -o /out/ado && \
+    dotnet publish src/Infrastructure/Metrics.GitHub/Metrics.GitHub.csproj                                -c Release -o /out/github && \
+    dotnet publish src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Sqlite/Metrics.GitHub.Migrations.Sqlite.csproj     -c Release -o /out/gh-sqlite && \
+    dotnet publish src/Infrastructure/Migrations/Metrics.GitHub.Migrations.Postgres/Metrics.GitHub.Migrations.Postgres.csproj -c Release -o /out/gh-postgres && \
+    dotnet publish src/Infrastructure/Migrations/Metrics.ADO.Migrations.Sqlite/Metrics.ADO.Migrations.Sqlite.csproj           -c Release -o /out/ado-sqlite && \
+    dotnet publish src/Infrastructure/Migrations/Metrics.ADO.Migrations.Postgres/Metrics.ADO.Migrations.Postgres.csproj       -c Release -o /out/ado-postgres && \
+    dotnet publish src/Presentation/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj          -c Release -o /out/host
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-# Copy the ADO extension and its dependencies first
-COPY --from=build /app/src/Metrics.ADO/out/. ./
-
-# Copy the GitHub extension and its dependencies next
-COPY --from=build /app/src/Metrics.GitHub/out/. ./
-
-COPY --from=build /app/src/Migrations/Metrics.GitHub.Migrations.Sqlite/out/. ./
-COPY --from=build /app/src/Migrations/Metrics.GitHub.Migrations.Postgres/out/. ./
-COPY --from=build /app/src/Migrations/Metrics.ADO.Migrations.Sqlite/out/. ./
-COPY --from=build /app/src/Migrations/Metrics.ADO.Migrations.Postgres/out/. ./
-# Copy the main application output last to ensure its JWT dependencies take precedence
-COPY --from=build /app/src/mcp/dotnet/Metrics.MCP.StreamableHTTP/out ./
+# Extensions and migration assemblies first...
+COPY --from=build /out/ado/.          ./
+COPY --from=build /out/github/.       ./
+COPY --from=build /out/gh-sqlite/.    ./
+COPY --from=build /out/gh-postgres/.  ./
+COPY --from=build /out/ado-sqlite/.   ./
+COPY --from=build /out/ado-postgres/. ./
+# ...and the host last, so its JWT dependencies take precedence.
+COPY --from=build /out/host/.         ./
 
 ENTRYPOINT ["dotnet", "Metrics.MCP.StreamableHTTP.dll"]

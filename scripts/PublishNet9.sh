@@ -40,9 +40,9 @@ publish_project() {
 publish_projects() {
   local RUNTIME=$1
 
-  publish_project "MetricsConsoleApp/MetricsConsoleApp.csproj" $1
+  publish_project "Presentation/MetricsConsoleApp/MetricsConsoleApp.csproj" $1
   publish_project "Metrics.MCP.Stdio/Metrics.MCP.Stdio.csproj" $1
-  publish_project "Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" $1
+  publish_project "Presentation/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" $1
   publish_project "MetricsService/MetricsService.csproj" $1
 }
 

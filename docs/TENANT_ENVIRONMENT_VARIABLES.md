@@ -621,7 +621,7 @@ If you're still experiencing issues:
 2. Collect application logs
 3. Verify tenant configuration in `appsettings.json`
 4. Check environment variables are visible: `env | grep <tenantId>__`
-5. Review the [TenantConfigurationProvider implementation](../src/Metrics/MultiTenant/TenantConfigurationProvider.cs)
+5. Review the [TenantConfigurationProvider implementation](../src/Infrastructure/Metrics.Infrastructure/MultiTenant/TenantConfigurationProvider.cs)
 
 ## Configuration Reference
 
@@ -738,9 +738,9 @@ done
 ```
 
 ## Related Files
-- [TenantConfigurationProvider.cs](../src/Metrics/MultiTenant/TenantConfigurationProvider.cs) - Tenant configuration loading with env var support
-- [TenantConfigurationService.cs](../src/Metrics/MultiTenant/TenantConfigurationService.cs) - Tenant configuration resolution service
-- [ServiceCollectionExtensions.cs](../src/Metrics/Extensions/ServiceCollectionExtensions.cs) - Dependency injection setup
+- [TenantConfigurationProvider.cs](../src/Infrastructure/Metrics.Infrastructure/MultiTenant/TenantConfigurationProvider.cs) - Tenant configuration loading with env var support
+- [TenantConfigurationService.cs](../src/Infrastructure/Metrics.Infrastructure/MultiTenant/TenantConfigurationService.cs) - Tenant configuration resolution service
+- [ServiceCollectionExtensions.cs](../src/Infrastructure/Metrics.Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs) - Dependency injection setup
 - [appsettings.json](../configs/appsettings.json) - Global configuration
 - [appsettings.tenant-1.json](../configs/appsettings.tenant-1.json) - Tenant 1 configuration
 - [appsettings.tenant-2.json](../configs/appsettings.tenant-2.json) - Tenant 2 configuration

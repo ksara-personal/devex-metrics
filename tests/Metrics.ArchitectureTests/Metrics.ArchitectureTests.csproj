@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <MetricsLayer>test</MetricsLayer>
+    <RootNamespace>Metrics.ArchitectureTests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!-- References every layer so the rules can be checked against the loaded assemblies. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/Core/Metrics.Domain/Metrics.Domain.csproj" />
+    <ProjectReference Include="../../src/Core/Metrics.Application/Metrics.Application.csproj" />
+    <ProjectReference Include="../../src/Infrastructure/Metrics.Infrastructure/Metrics.Infrastructure.csproj" />
+    <ProjectReference Include="../../src/Infrastructure/Metrics.GitHub/Metrics.GitHub.csproj" />
+    <ProjectReference Include="../../src/Infrastructure/Metrics.ADO/Metrics.ADO.csproj" />
+  </ItemGroup>
+
+</Project>
