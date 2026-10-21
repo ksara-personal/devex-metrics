@@ -14,7 +14,7 @@ public record ExportColumn<T>(string Header, Func<T, object?> Value);
 /// Exports a repository's stored PRs and commits to an xlsx workbook with one sheet each.
 /// Column order follows the "Git PR Example Fields" / "Git Commit Example Fields" layouts.
 /// </summary>
-public class ActivityWorkbookExporter(ActivityDbContext db)
+public sealed class ActivityWorkbookExporter(ActivityDbContext db)
 {
     const string DateFormat = "yyyy-mm-dd\\Thh:mm:ss\\Z";
 

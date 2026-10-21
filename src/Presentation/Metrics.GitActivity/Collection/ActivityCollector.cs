@@ -16,7 +16,7 @@ namespace Metrics.GitActivity.Collection;
 /// stored page. A window that completed is collected again from the start, refreshing the stored rows.
 /// PRs are read oldest first through search in date chunks, mirroring GitHubSynchronizer's last-run tracking.
 /// </remarks>
-public class ActivityCollector(IActivitySource source, ActivityDbContext db, GitHubActivityMapper mapper, RateLimitBackoff rateLimits, ILogger<ActivityCollector> logger)
+public sealed class ActivityCollector(IActivitySource source, ActivityDbContext db, GitHubActivityMapper mapper, RateLimitBackoff rateLimits, ILogger<ActivityCollector> logger)
 {
     /// <summary>GitHub search returns at most this many results per query.</summary>
     public const int SearchResultLimit = 1000;

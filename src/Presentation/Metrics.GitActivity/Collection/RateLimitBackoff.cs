@@ -8,7 +8,7 @@ namespace Metrics.GitActivity.Collection;
 /// or for the <c>Retry-After</c> delay (secondary limit). Gives up once the total wait of a run
 /// would exceed <see cref="MaxTotalWait"/>; the checkpoint then lets the next run resume.
 /// </summary>
-public class RateLimitBackoff(ILogger<RateLimitBackoff> logger, TimeProvider? timeProvider = null)
+public sealed class RateLimitBackoff(ILogger<RateLimitBackoff> logger, TimeProvider? timeProvider = null)
 {
     readonly TimeProvider _time = timeProvider ?? TimeProvider.System;
     TimeSpan _waited = TimeSpan.Zero;

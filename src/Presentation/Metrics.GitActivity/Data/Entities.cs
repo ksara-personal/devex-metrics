@@ -3,7 +3,7 @@ namespace Metrics.GitActivity.Data;
 /// <summary>
 /// A pull request of a repository. Unique per (Repository, Number).
 /// </summary>
-public class PullRequestRecord
+public sealed record PullRequestRecord
 {
     public long Id { get; set; }
     public required string Repository { get; set; }
@@ -57,7 +57,7 @@ public class PullRequestRecord
     public List<PullRequestLinkedIssueRecord> LinkedIssues { get; set; } = [];
 }
 
-public class PullRequestReviewRecord
+public sealed record PullRequestReviewRecord
 {
     public long Id { get; set; }
     public long PullRequestId { get; set; }
@@ -71,7 +71,7 @@ public class PullRequestReviewRecord
 }
 
 /// <summary>A conversation (issue) comment on the PR.</summary>
-public class PullRequestCommentRecord
+public sealed record PullRequestCommentRecord
 {
     public long Id { get; set; }
     public long PullRequestId { get; set; }
@@ -81,7 +81,7 @@ public class PullRequestCommentRecord
 }
 
 /// <summary>A reviewer (user or team) that is still requested on the PR.</summary>
-public class PullRequestReviewRequestRecord
+public sealed record PullRequestReviewRequestRecord
 {
     public long Id { get; set; }
     public long PullRequestId { get; set; }
@@ -91,14 +91,14 @@ public class PullRequestReviewRequestRecord
     public string? ReviewerEmail { get; set; }
 }
 
-public class PullRequestLabelRecord
+public sealed record PullRequestLabelRecord
 {
     public long Id { get; set; }
     public long PullRequestId { get; set; }
     public required string Name { get; set; }
 }
 
-public class PullRequestLinkedIssueRecord
+public sealed record PullRequestLinkedIssueRecord
 {
     public long Id { get; set; }
     public long PullRequestId { get; set; }
@@ -111,7 +111,7 @@ public class PullRequestLinkedIssueRecord
 /// <summary>
 /// A commit of a repository branch. Unique per (Repository, Hash).
 /// </summary>
-public class CommitRecord
+public sealed record CommitRecord
 {
     public long Id { get; set; }
     public required string Repository { get; set; }

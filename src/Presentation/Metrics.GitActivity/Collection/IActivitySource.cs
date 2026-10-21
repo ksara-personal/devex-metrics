@@ -23,7 +23,7 @@ public interface IActivitySource
 /// <summary>
 /// <see cref="IActivitySource"/> over the shared <see cref="GitHubApiClient"/>.
 /// </summary>
-public class GitHubActivitySource(GitHubApiClient client) : IActivitySource
+public sealed class GitHubActivitySource(GitHubApiClient client) : IActivitySource
 {
     public async Task<GqlPRSearch?> SearchPullRequestsAsync(string owner, string repo, DateTime start, DateTime end, string? cursor, CancellationToken cancellationToken) =>
         (await client.SearchRepoPullRequestsPageAsync(owner, repo, start, end, cursor))?.data?.search;

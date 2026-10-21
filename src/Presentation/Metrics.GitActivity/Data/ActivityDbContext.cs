@@ -6,7 +6,7 @@ namespace Metrics.GitActivity.Data;
 /// <summary>
 /// Shared SQLite store for every collected repository.
 /// </summary>
-public class ActivityDbContext(DbContextOptions<ActivityDbContext> options) : DbContext(options)
+public sealed class ActivityDbContext(DbContextOptions<ActivityDbContext> options) : DbContext(options)
 {
     public DbSet<PullRequestRecord> PullRequests => Set<PullRequestRecord>();
     public DbSet<PullRequestReviewRecord> PullRequestReviews => Set<PullRequestReviewRecord>();
