@@ -216,7 +216,7 @@ Supported providers: `github-sqlite`, `github-postgres`, `ado-sqlite`, `ado-post
 
 ## CLI Usage
 
-> To collect raw PR and commit data for one repository or a repo-name prefix into a local SQLite
+> To collect raw PR and commit data for one repository, a repo-name prefix or a whole organization into a local SQLite
 > database and export it to xlsx, see the [Git Activity collector](./src/Presentation/Metrics.GitActivity/README.md).
 
 Build and run from the `src/Presentation/MetricsConsoleApp` directory:

@@ -1,7 +1,9 @@
 # git-activity
 
-Collects pull requests and commits for one GitHub repository at a time into a shared SQLite
-database, and exports them to an xlsx workbook with a `Pull Requests` sheet and a `Commits` sheet.
+Collects GitHub pull requests and commits into a shared SQLite database, and exports them to an
+xlsx workbook with a `Pull Requests` sheet and a `Commits` sheet. It works on one repository
+(`--repo`), every repository whose name starts with a prefix (`--repo-prefix`), or every
+repository of an organization or user (`--org`).
 
 ## Setup
 
@@ -43,6 +45,17 @@ git-activity export  --repo-prefix acme/source. -p Quarter -o source-q4.xlsx
 - Reads the matching repositories from the database; no GitHub token is needed.
 - Writes one workbook with a single `Pull Requests` sheet and a single `Commits` sheet, ordered by repository and then date.
 - The `Commits` sheet gets an extra leading `Repository` column. The PR sheet already has one.
+
+### All repositories of an organization
+
+`--org owner` selects every repository of an organization or user. It behaves exactly like `--repo-prefix` with an empty prefix, including skipping archived repositories, `--refresh`, resuming, and the single combined workbook (default name `<owner>_all-repos_<window>.xlsx`).
+
+```bash
+git-activity collect --org acme -p Quarter
+git-activity export  --org acme -p Quarter
+```
+
+Export with `--org` includes every stored repository of that owner, whichever command collected it.
 
 ## Resume and rate limits
 

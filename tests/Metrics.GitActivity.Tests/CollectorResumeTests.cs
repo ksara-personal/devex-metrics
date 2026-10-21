@@ -213,6 +213,10 @@ public sealed class CollectorResumeTests : IDisposable
         Assert.Equal(["Source.Billing", "source.claims", "source.members"],
             await collector.FindRepositoriesAsync("acme", "source.", includeArchived: false));
         Assert.Contains("source.legacy", await collector.FindRepositoriesAsync("acme", "source.", includeArchived: true));
+
+        // --org: an empty prefix selects every non-archived repository.
+        Assert.Equal(["api", "Source.Billing", "source.claims", "source.members", "sourcery"],
+            await collector.FindRepositoriesAsync("acme", string.Empty, includeArchived: false));
     }
 
     [Fact]

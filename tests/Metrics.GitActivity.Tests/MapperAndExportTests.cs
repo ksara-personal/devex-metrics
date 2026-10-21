@@ -131,6 +131,8 @@ public class MapperAndExportTests
         var exporter = new ActivityWorkbookExporter(db);
         var repos = await exporter.FindStoredRepositoriesAsync("acme", "source.");
         Assert.Equal(["acme/Source.Billing", "acme/source.claims", "acme/source.tools"], repos);
+        Assert.Equal(["acme/api", "acme/Source.Billing", "acme/source.claims", "acme/source.tools"],
+            await exporter.FindStoredRepositoriesAsync("acme", string.Empty));   // --org
 
         var path = Path.Combine(Path.GetTempPath(), $"repo-export-{Guid.NewGuid():N}.xlsx");
         try

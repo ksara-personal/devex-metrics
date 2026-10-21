@@ -17,6 +17,7 @@ var repoOption = new Option<string?>("--repo", "Repository as owner/name");
 repoOption.AddAlias("-r");
 var prefixOption = new Option<string?>("--repo-prefix", "All repositories of an owner whose name starts with a prefix, as owner/prefix (e.g. acme/source.)");
 prefixOption.AddAlias("-x");
+var orgOption = new Option<string?>("--org", "All repositories of an organization or user (same as --repo-prefix owner/ with an empty prefix)");
 var periodOption = new Option<PeriodUnit?>("--period", "Window unit: Day, Week, Month (default), Quarter, Year");
 periodOption.AddAlias("-p");
 var lastOption = new Option<int?>("--last", "Number of periods, ending with the one containing --anchor (default 1)");
@@ -40,7 +41,7 @@ var allOption = new Option<bool>("--all", "Export everything stored for the repo
 
 var collectCommand = new Command("collect", "Collect PRs and commits of one repository, or every repository matching a prefix, from GitHub into the SQLite database")
 {
-    repoOption, prefixOption, periodOption, lastOption, anchorOption, startOption, endOption, dbOption, branchOption,
+    repoOption, prefixOption, orgOption, periodOption, lastOption, anchorOption, startOption, endOption, dbOption, branchOption,
     skipPrsOption, skipCommitsOption, restartOption, includeArchivedOption, refreshOption
 };
 collectCommand.AddValidator(ValidateTarget);
@@ -74,11 +75,11 @@ collectCommand.SetHandler(async (InvocationContext ctx) =>
         ctx.ParseResult.GetValueForOption(includeArchivedOption), cancellationToken);
     if (repos.Count == 0)
     {
-        logger.LogWarning("No repositories of {Owner} start with '{Prefix}'", target.Owner, target.Prefix);
+        logger.LogWarning("No repositories of {Owner} match {Selection}", target.Owner, Describe(target));
         return;
     }
-    logger.LogInformation("Collecting {Count} repositories of {Owner} starting with '{Prefix}' for {Window}: {Repos}",
-        repos.Count, target.Owner, target.Prefix, window, string.Join(", ", repos));
+    logger.LogInformation("Collecting {Count} repositories of {Owner} ({Selection}) for {Window}: {Repos}",
+        repos.Count, target.Owner, Describe(target), window, string.Join(", ", repos));
 
     var refresh = ctx.ParseResult.GetValueForOption(refreshOption);
     var failed = new List<string>();
@@ -126,14 +127,19 @@ collectCommand.SetHandler(async (InvocationContext ctx) =>
 
 var exportCommand = new Command("export", "Export PRs and commits of one repository, or every stored repository matching a prefix, to a single xlsx")
 {
-    repoOption, prefixOption, periodOption, lastOption, anchorOption, startOption, endOption, dbOption, outOption, allOption
+    repoOption, prefixOption, orgOption, periodOption, lastOption, anchorOption, startOption, endOption, dbOption, outOption, allOption
 };
 exportCommand.AddValidator(ValidateTarget);
 exportCommand.SetHandler(async (InvocationContext ctx) =>
 {
     var target = ParseTarget(ctx);
     DateWindow? window = ctx.ParseResult.GetValueForOption(allOption) ? null : ResolveWindow(ctx);
-    var name = target.Prefix is null ? target.Repo! : $"{target.Prefix.TrimEnd('.', '-', '_')}-all";
+    var name = target.Prefix switch
+    {
+        null => target.Repo!,
+        "" => "all-repos",
+        var p => $"{p.TrimEnd('.', '-', '_')}-all"
+    };
     var output = ctx.ParseResult.GetValueForOption(outOption)
         ?? $"{target.Owner}_{name}_{(window is { } w ? $"{w.Start:yyyyMMdd}-{w.End.AddTicks(-1):yyyyMMdd}" : "all")}.xlsx";
 
@@ -177,12 +183,23 @@ void ValidateTarget(System.CommandLine.Parsing.CommandResult result)
 {
     var hasRepo = !string.IsNullOrWhiteSpace(result.GetValueForOption(repoOption));
     var hasPrefix = !string.IsNullOrWhiteSpace(result.GetValueForOption(prefixOption));
-    if (hasRepo == hasPrefix)
-        result.ErrorMessage = "Specify exactly one of --repo owner/name or --repo-prefix owner/prefix.";
+    var hasOrg = !string.IsNullOrWhiteSpace(result.GetValueForOption(orgOption));
+    if (new[] { hasRepo, hasPrefix, hasOrg }.Count(x => x) != 1)
+        result.ErrorMessage = "Specify exactly one of --repo owner/name, --repo-prefix owner/prefix or --org owner.";
 }
+
+static string Describe(RepoSelection target) =>
+    target.Prefix is { Length: > 0 } p ? $"names starting with '{p}'" : "all repositories";
 
 RepoSelection ParseTarget(InvocationContext ctx)
 {
+    if (ctx.ParseResult.GetValueForOption(orgOption) is { Length: > 0 } org)
+    {
+        var orgName = org.Trim().Trim('/');
+        if (orgName.Length == 0 || orgName.Contains('/'))
+            throw new ArgumentException($"--org must be an organization or user name, got '{org}'.");
+        return new RepoSelection(orgName, null, string.Empty);
+    }
     if (ctx.ParseResult.GetValueForOption(prefixOption) is { Length: > 0 } prefix)
     {
         // owner/prefix: the prefix may itself end with separators such as '.' or '-'.
@@ -248,5 +265,8 @@ static async Task MigrateAsync(IServiceProvider services) =>
 
 public partial class Program;
 
-/// <summary>Either a single repository (<see cref="Repo"/>) or every repository starting with <see cref="Prefix"/>.</summary>
+/// <summary>
+/// Either a single repository (<see cref="Repo"/>) or every repository starting with <see cref="Prefix"/>;
+/// an empty prefix (<c>--org</c>) selects all of the owner's repositories.
+/// </summary>
 record RepoSelection(string Owner, string? Repo, string? Prefix);
