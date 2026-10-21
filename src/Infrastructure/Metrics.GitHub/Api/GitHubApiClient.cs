@@ -132,4 +132,81 @@ public class GitHubApiClient : ApiClient
                     results => results is null || results.data is null || results.data.search is null);
         });
     }
+
+    /// <summary>
+    /// Gets one page of a repository's pull requests created in <c>[start, end]</c> (inclusive, second precision),
+    /// oldest first, with reviews, comments, labels, linked issues, requested reviewers and CI status.
+    /// GitHub search returns at most 1000 results per query, so callers should keep the range small.
+    /// </summary>
+    public async Task<GqlPRSearchRoot?> SearchRepoPullRequestsPageAsync(string owner, string repo, DateTime start, DateTime end,
+        string? endCursor, int pageSize = 25)
+    {
+        return await ExecuteAsync($"Search PR page for {owner}/{repo}", async () =>
+        {
+            var searchQuery = $"repo:{owner}/{repo} is:pr created:{ToUtcTimestamp(start)}..{ToUtcTimestamp(end)} sort:created-asc";
+            var postBody = QueryBuilder.BuildQuery(ResourceCache.RepoPRListQuery, new PostRepoPRSearchVariables(searchQuery, endCursor, pageSize));
+            return await ExecutePostAsync(string.Empty, postBody,
+                GitActivityGqlContext.Default.PostWithVariablesPostRepoPRSearchVariables,
+                GitActivityGqlContext.Default.GqlPRSearchRoot,
+                results => results is null || results.data is null || results.data.search is null);
+        });
+    }
+
+    /// <summary>
+    /// Gets one page of a branch's commit history between <paramref name="since"/> and <paramref name="until"/>.
+    /// </summary>
+    public async Task<GqlCommitHistoryRoot?> GetCommitHistoryPageAsync(string owner, string repo, string branch,
+        DateTime since, DateTime until, string? endCursor, int pageSize = 100)
+    {
+        return await ExecuteAsync($"Get commit history page for {owner}/{repo}@{branch}", async () =>
+        {
+            var qualifiedName = branch.StartsWith("refs/", StringComparison.Ordinal) ? branch : $"refs/heads/{branch}";
+            var postBody = QueryBuilder.BuildQuery(ResourceCache.RepoCommitHistoryQuery,
+                new PostRepoCommitHistoryVariables(owner, repo, qualifiedName,
+                    ToUtcTimestamp(since),
+                    ToUtcTimestamp(until),
+                    endCursor, pageSize));
+            return await ExecutePostAsync(string.Empty, postBody,
+                GitActivityGqlContext.Default.PostWithVariablesPostRepoCommitHistoryVariables,
+                GitActivityGqlContext.Default.GqlCommitHistoryRoot,
+                results => results is null || results.data is null || results.data.repository is null);
+        });
+    }
+
+    /// <summary>
+    /// Gets one page of the repositories owned by an organization or user, ordered by name.
+    /// </summary>
+    public async Task<GqlListRoot?> GetRepositoriesPageAsync(string owner, string? endCursor, int pageSize = 100)
+    {
+        return await ExecuteAsync($"Get repositories page for {owner}", async () =>
+        {
+            var postBody = QueryBuilder.BuildQuery(ResourceCache.RepoListQuery, new PostRepoListVariables(owner, endCursor, pageSize));
+            return await ExecutePostAsync(string.Empty, postBody,
+                GitActivityGqlContext.Default.PostWithVariablesPostRepoListVariables,
+                GitActivityGqlContext.Default.GqlListRoot,
+                results => results is null || results.data is null || results.data.repositoryOwner is null);
+        });
+    }
+
+    /// <summary>
+    /// Formats as a UTC GitHub timestamp. Unspecified kinds (e.g. read back from SQLite) are taken as UTC.
+    /// </summary>
+    static string ToUtcTimestamp(DateTime value) =>
+        (value.Kind == DateTimeKind.Local ? value.ToUniversalTime() : value).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+    /// <summary>
+    /// Gets the default branch name of a repository.
+    /// </summary>
+    public async Task<string?> GetDefaultBranchAsync(string owner, string repo)
+    {
+        return await ExecuteAsync($"Get default branch for {owner}/{repo}", async () =>
+        {
+            var postBody = QueryBuilder.BuildQuery(ResourceCache.RepoDefaultBranchQuery, new PostVariables(owner, repo));
+            var result = await ExecutePostAsync(string.Empty, postBody,
+                GitActivityGqlContext.Default.PostWithVariablesPostVariables,
+                GitActivityGqlContext.Default.GqlDefaultBranchRoot,
+                results => results is null || results.data is null || results.data.repository is null);
+            return result?.data?.repository?.defaultBranchRef?.name;
+        });
+    }
 }

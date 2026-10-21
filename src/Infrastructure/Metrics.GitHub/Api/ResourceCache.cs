@@ -44,7 +44,11 @@ public static class ResourceCache
         [Fragment_Comments] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_Comments.txt"),
         [Fragment_Commits] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_Commits.txt"),
         [Fragment_Reviews] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_Reviews.txt"),
-        [Fragment_TimelineItems] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_TimelineItems.txt")
+        [Fragment_TimelineItems] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.Fragment_TimelineItems.txt"),
+        [RepoPRListQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.RepoPRListQuery.txt"),
+        [RepoCommitHistoryQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.RepoCommitHistoryQuery.txt"),
+        [RepoDefaultBranchQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.RepoDefaultBranchQuery.txt"),
+        [RepoListQuery] = ReadEmbeddedScript("Metrics.GitHub.Api.Resources.RepoListQuery.txt")
     };
 
     public const string PRQuery = "PRQuery";
@@ -57,4 +61,8 @@ public static class ResourceCache
     public const string Fragment_Commits = "Fragment_Commits";
     public const string Fragment_Reviews = "Fragment_Reviews";
     public const string Fragment_TimelineItems = "Fragment_TimelineItems";
+    public const string RepoPRListQuery = "RepoPRListQuery";
+    public const string RepoCommitHistoryQuery = "RepoCommitHistoryQuery";
+    public const string RepoDefaultBranchQuery = "RepoDefaultBranchQuery";
+    public const string RepoListQuery = "RepoListQuery";
 }

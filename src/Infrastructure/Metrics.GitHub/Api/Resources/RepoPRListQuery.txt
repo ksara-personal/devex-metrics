@@ -1,0 +1,77 @@
+query($searchQuery: String!, $after: String, $pageSize: Int = 25) {
+  search(query: $searchQuery, type: ISSUE, first: $pageSize, after: $after) {
+    issueCount
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    nodes {
+      ... on PullRequest {
+        number
+        title
+        url
+        bodyText
+        state
+        isDraft
+        createdAt
+        mergedAt
+        closedAt
+        baseRefName
+        headRefName
+        additions
+        deletions
+        changedFiles
+        totalCommentsCount
+        reviewDecision
+        author {
+          login
+          ... on User { name email }
+        }
+        commits(last: 1) {
+          totalCount
+          nodes {
+            commit {
+              statusCheckRollup { state }
+            }
+          }
+        }
+        labels(first: 20) {
+          nodes { name }
+        }
+        closingIssuesReferences(first: 20) {
+          nodes { number url }
+        }
+        reviewRequests(first: 20) {
+          nodes {
+            requestedReviewer {
+              ... on User { login name email }
+              ... on Team { slug }
+            }
+          }
+        }
+        reviews(first: 100) {
+          totalCount
+          nodes {
+            author {
+              login
+              ... on User { name email }
+            }
+            state
+            submittedAt
+            comments { totalCount }
+          }
+        }
+        comments(first: 100) {
+          totalCount
+          nodes {
+            author {
+              login
+              ... on User { name email }
+            }
+            createdAt
+          }
+        }
+      }
+    }
+  }
+}

@@ -92,6 +92,18 @@ public abstract class ApiClient : IOrganizationApiClient
             throw new HttpRequestException("Bad gateway error");
         }
 
+        if (response.StatusCode is System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.TooManyRequests)
+        {
+            var limit = await response.ParseRateLimitErrorAsync();
+            var retryAfter = response.Headers.RetryAfter?.Delta
+                ?? (response.Headers.RetryAfter?.Date is { } date ? date - DateTimeOffset.UtcNow : null);
+            if (limit.IsRateLimited || retryAfter is not null || response.StatusCode == System.Net.HttpStatusCode.TooManyRequests
+                || limit.Message?.Contains("rate limit", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                throw new RateLimitExceededException($"{limit.Message ?? "Rate limit exceeded"} - {limit}", limit.ResetAt, retryAfter, response.StatusCode);
+            }
+        }
+
         // Throw an exception if response is not successful to trigger retry
         response.EnsureSuccessStatusCode();
 
@@ -101,10 +113,9 @@ public abstract class ApiClient : IOrganizationApiClient
         {
             var error = await response.Content.ReadAsStringAsync();
             var rateLimit = await response.ParseRateLimitErrorAsync();
-            if (rateLimit?.IsRateLimited == true)
+            if (rateLimit?.IsRateLimited == true || rateLimit?.Message?.Contains("rate limit", StringComparison.OrdinalIgnoreCase) == true)
             {
-                //_logger.LogError("Rate limit exceeded. Limit: {Limit}, Remaining: {Remaining}, ResetsAt: {ResetsAt}", rateLimit.Limit, rateLimit.Remaining, rateLimit.ResetAt);
-                throw new HttpRequestException($"{rateLimit.Message} - {rateLimit}");
+                throw new RateLimitExceededException($"{rateLimit.Message} - {rateLimit}", rateLimit.ResetAt, null, response.StatusCode);
             }
 
             throw new HttpRequestException($"Error in response data: {error}");
