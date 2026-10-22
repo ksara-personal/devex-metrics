@@ -1,0 +1,30 @@
+query($owner: String!, $repo: String!, $qualifiedName: String!, $since: GitTimestamp!, $until: GitTimestamp!, $after: String, $pageSize: Int = 100) {
+  repository(owner: $owner, name: $repo) {
+    nameWithOwner
+    ref(qualifiedName: $qualifiedName) {
+      name
+      target {
+        ... on Commit {
+          history(first: $pageSize, after: $after, since: $since, until: $until) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            nodes {
+              oid
+              messageHeadline
+              messageBody
+              authoredDate
+              committedDate
+              author { name email date }
+              committer { name email date }
+              parents(first: 10) {
+                nodes { oid }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -66,6 +66,7 @@
 
   <ItemGroup Label="Utilities">
     <PackageVersion Include="ChoETL.JSON.NETStandard" Version="1.2.1.71" />
+    <PackageVersion Include="ClosedXML" Version="0.105.0" />
     <PackageVersion Include="Cronos" Version="0.11.0" />
     <PackageVersion Include="Nito.AsyncEx" Version="5.1.2" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />

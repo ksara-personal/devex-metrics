@@ -1,0 +1,16 @@
+query($owner: String!, $after: String, $pageSize: Int = 100) {
+  repositoryOwner(login: $owner) {
+    login
+    repositories(first: $pageSize, after: $after, orderBy: {field: NAME, direction: ASC}) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        name
+        isArchived
+        isFork
+      }
+    }
+  }
+}

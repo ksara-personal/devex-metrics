@@ -21,9 +21,11 @@ src/
   Presentation/
     Metrics.MCP.StreamableHTTP  MCP server, OData endpoints, background scheduler
     MetricsConsoleApp           CLI for querying and syncing metrics
+    Metrics.GitActivity         per-repo GitHub PR and commit collector with xlsx export
 tests/
   Metrics.Tests                 application and persistence tests
   Metrics.ADO.Tests             Azure DevOps adapter tests
+  Metrics.GitActivity.Tests     Metrics.GitActivity tests
   Metrics.ArchitectureTests     enforces the layer dependency rules
 ```
 
@@ -32,7 +34,7 @@ tests/
 | Domain | `Metrics.Domain` | nothing (BCL plus the `[MultiTenant]` marker attribute) |
 | Application | `Metrics.Application` | Domain, `Microsoft.Extensions.*.Abstractions` |
 | Infrastructure | `Metrics.Infrastructure`, `Metrics.GitHub`, `Metrics.ADO`, `Metrics.*.Migrations.*` | Domain, Application |
-| Presentation | `Metrics.MCP.StreamableHTTP`, `MetricsConsoleApp` | every layer |
+| Presentation | `Metrics.MCP.StreamableHTTP`, `MetricsConsoleApp`, `Metrics.GitActivity` | every layer |
 
 Package versions are managed centrally in `Directory.Packages.props`; shared build settings
 live in `Directory.Build.props`.
@@ -213,6 +215,9 @@ The `scripts/` folder provides helpers for managing EF Core migrations:
 Supported providers: `github-sqlite`, `github-postgres`, `ado-sqlite`, `ado-postgres`, `sqlite`, `postgres`, `github`, `ado`, `all`
 
 ## CLI Usage
+
+> To collect raw PR and commit data for one repository, a repo-name prefix or a whole organization into a local SQLite
+> database and export it to xlsx, see the [Git Activity collector](./src/Presentation/Metrics.GitActivity/README.md).
 
 Build and run from the `src/Presentation/MetricsConsoleApp` directory:
 
@@ -445,6 +450,7 @@ If your cloud provider supports a remote data API, consult your provider's docum
 ## Further Documentation
 
 - [Architecture](./docs/ARCHITECTURE.md)
+- [Git Activity collector (PRs and commits to SQLite and xlsx)](./src/Presentation/Metrics.GitActivity/README.md)
 - [OData Query Reference](./docs/OData.md)
 - [Tenant Environment Variables](./docs/TENANT_ENVIRONMENT_VARIABLES.md)
 - [Tenant Logging Scopes](./docs/TENANT_LOGGING_SCOPES.md)

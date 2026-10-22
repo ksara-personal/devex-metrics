@@ -22,11 +22,13 @@
   <Folder Name="/Presentation/">
     <Project Path="src/Presentation/Metrics.MCP.StreamableHTTP/Metrics.MCP.StreamableHTTP.csproj" />
     <Project Path="src/Presentation/MetricsConsoleApp/MetricsConsoleApp.csproj" />
+    <Project Path="src/Presentation/Metrics.GitActivity/Metrics.GitActivity.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Metrics.Tests/Metrics.Tests.csproj" />
     <Project Path="tests/Metrics.ADO.Tests/Metrics.ADO.Tests.csproj" />
     <Project Path="tests/Metrics.ArchitectureTests/Metrics.ArchitectureTests.csproj" />
+    <Project Path="tests/Metrics.GitActivity.Tests/Metrics.GitActivity.Tests.csproj" />
   </Folder>
   <Folder Name="/solution items/">
     <File Path="Directory.Build.props" />
