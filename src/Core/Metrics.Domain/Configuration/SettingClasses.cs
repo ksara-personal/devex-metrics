@@ -54,7 +54,31 @@ public sealed record SourceControlSettings<TOrg> where TOrg : Organization
     /// Branches with these prefixes will be ignored in processing.
     /// </summary>
     /// <value></value>
-    public IReadOnlyList<string> ExcludeBranchPrefixes { get; set; }    
+    public IReadOnlyList<string> ExcludeBranchPrefixes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the patterns used to extract work item ids from PR bodies and titles.
+    /// Matches from all patterns are ordered by position in the text. Defaults to Azure Boards links (<c>AB#123</c>) when empty.
+    /// </summary>
+    public IReadOnlyList<WorkItemIdPattern>? WorkItemIdPatterns { get; set; }
+}
+
+/// <summary>
+/// A regex used to find work item ids in PR text, and how the stored id is formatted.
+/// </summary>
+public sealed record WorkItemIdPattern
+{
+    /// <summary>
+    /// Regex (matched case-insensitively) that must define a named group <c>WorkItemId</c>.
+    /// </summary>
+    /// <example>"\\bPROD[-\\s](?&lt;WorkItemId&gt;\\d+)" matches "PROD-148932" and "Prod 135856".</example>
+    public required string Pattern { get; set; }
+
+    /// <summary>
+    /// Optional output format using regex substitutions, e.g. <c>PROD-${WorkItemId}</c>.
+    /// When omitted the <c>WorkItemId</c> group value is stored as is.
+    /// </summary>
+    public string? Format { get; set; }
 }
 
 /// <summary>

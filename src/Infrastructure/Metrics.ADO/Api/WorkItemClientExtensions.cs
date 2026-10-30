@@ -61,9 +61,10 @@ static class WorkItemClientExtensions
         
         var allIds = workItemIds.Concat(parentIds).Distinct().ToList();
 
+        var queryIds = AdoWorkItemIds.WithPrefixed(allIds);
         var prMetrics = await dbContext.PRMetrics
                         .AsNoTracking()
-                        .Where(pr => allIds.Contains(pr.WorkItemId) || allIds.Contains(pr.WorkItemId2))
+                        .Where(pr => queryIds.Contains(pr.WorkItemId) || queryIds.Contains(pr.WorkItemId2))
                         .ToListAsync();
 
         List<WorkItemWithGitHubLink> workItemsWithLinks = new();
@@ -125,9 +126,8 @@ static class WorkItemClientExtensions
             var parentIdString = parentIdValue?.ToString();
             var grandParentIdString = grandParentId?.ToString();
 
-            var prMetric = prMetrics.FirstOrDefault(pr => pr.WorkItemId == idString || pr.WorkItemId2 == idString
-                    || (!string.IsNullOrEmpty(parentIdString) && (pr.WorkItemId == parentIdString || pr.WorkItemId2 == parentIdString))
-                    || (!string.IsNullOrEmpty(grandParentIdString) && (pr.WorkItemId == grandParentIdString || pr.WorkItemId2 == grandParentIdString)));
+            var prMetric = prMetrics.FirstOrDefault(pr => new[] { idString, parentIdString, grandParentIdString }
+                    .Any(id => AdoWorkItemIds.Matches(pr.WorkItemId, id) || AdoWorkItemIds.Matches(pr.WorkItemId2, id)));
 
             workItemWithGitHubLink.GitHubPullRequestUrl = prMetric?.PrUrl;
             workItemsWithLinks.Add(workItemWithGitHubLink);

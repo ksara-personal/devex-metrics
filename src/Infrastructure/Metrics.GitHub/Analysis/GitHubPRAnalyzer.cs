@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 
 namespace Metrics.GitHub;
@@ -9,17 +8,23 @@ namespace Metrics.GitHub;
 public sealed class GitHubPRAnalyzer : PRAnalyzer<GitHubPRRoot>
 {
     readonly MultiOrgUserService<GitHubOrganization> _crossOrgUserService;
-    const string WorkItemId = "WorkItemId";
-    static readonly Regex _issueRegex = new Regex(@"(?n)AB#(?<WorkItemId>\d+)", RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+    readonly WorkItemIdExtractor _workItemIdExtractor;
 
     /// <summary>
     /// ctor
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <param name="logger"></param>
+    /// <param name="crossOrgUserService"></param>
+    /// <param name="tenantConfig"></param>
     public GitHubPRAnalyzer(IServiceProvider serviceProvider, ILogger<GitHubPRAnalyzer> logger,
-            MultiOrgUserService<GitHubOrganization> crossOrgUserService)
-        : base(serviceProvider, logger) => _crossOrgUserService = crossOrgUserService;
+            MultiOrgUserService<GitHubOrganization> crossOrgUserService, ITenantSettingsProvider tenantConfig)
+        : base(serviceProvider, logger)
+    {
+        _crossOrgUserService = crossOrgUserService;
+        var settings = tenantConfig.GetSettings<SourceControlSettings<GitHubOrganization>>(GitHubServiceConfigurator.GitHubSectionName);
+        _workItemIdExtractor = new WorkItemIdExtractor(settings?.WorkItemIdPatterns);
+    }
 
     /// <summary>
     /// Creates the metrics for the given pr.
@@ -58,33 +63,13 @@ public sealed class GitHubPRAnalyzer : PRAnalyzer<GitHubPRRoot>
             PRMetric = metrics
         };
         
-        if (!string.IsNullOrEmpty(pr.bodyText))
-        {
-            var matches = _issueRegex.Matches(pr.bodyText);
-            if (matches.Count > 0)
-            {
-                foreach (var (match, index) in matches.Select((m, i) => (m, i)))
-                {
-                    var _ = index switch
-                    {
-                        0 when match.Groups[WorkItemId].Success => metrics.WorkItemId = match.Groups[WorkItemId].Value,
-                        1 when match.Groups[WorkItemId].Success => metrics.WorkItemId2 = match.Groups[WorkItemId].Value,
-                        _ => null
-                    };
-                    if (index > 2)
-                        break;
-                }
-            }
-        }
-        if(string.IsNullOrEmpty(metrics.WorkItemId) && string.IsNullOrEmpty(metrics.WorkItemId2) && !string.IsNullOrEmpty(pr.title))
-        {
-            // check if title has the issue id.
-            var match = _issueRegex.Match(pr.title);
-            if (match.Success)
-            {
-                metrics.WorkItemId = match.Groups[WorkItemId].Value;
-            }
-        }
+        // body first, fall back to the title when the body has no work item ids.
+        var ids = _workItemIdExtractor.Extract(pr.bodyText);
+        if (ids.Count == 0)
+            ids = _workItemIdExtractor.Extract(pr.title);
+
+        metrics.WorkItemId = ids.ElementAtOrDefault(0);
+        metrics.WorkItemId2 = ids.ElementAtOrDefault(1);
         return metrics;
     }
 

@@ -172,6 +172,7 @@ public sealed class ADOMetricsSynchronizer : DataSynchronizer
         var workItemId = workItemResult.WorkItemId;
         var allIds = children.Select(id => id.ToString()).ToList();
         allIds.Add(workItemId.ToString());
+        allIds = AdoWorkItemIds.WithPrefixed(allIds);
 
         var prMetrics = await _devMetricsContext.PRMetrics
                         .Include(pr => pr.DevExMetricItem)
